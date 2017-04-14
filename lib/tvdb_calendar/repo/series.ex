@@ -74,6 +74,7 @@ defmodule TVDBCalendar.Repo.Series do
     end)
     |> Enum.map(fn ep ->
       %{
+        episode_name: ep.episode_name,
         season_num: ep.aired_season,
         episode_num: ep.aired_episode_number,
         first_aired: Timex.parse!(ep.first_aired, "%Y-%m-%d", :strftime) |> NaiveDateTime.to_date,
