@@ -10,6 +10,7 @@ defmodule TVDBCalendar.CalendarController do
 
         series =
           TVDBCalendar.Repo.user_favorites(user)
+          |> Enum.filter(&TVDBCalendar.Repo.has_series?/1)
           |> Enum.map(&TVDBCalendar.Repo.series_info/1)
           |> Enum.map(fn series ->
             series
