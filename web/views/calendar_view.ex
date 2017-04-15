@@ -20,17 +20,14 @@ defmodule TVDBCalendar.CalendarView do
       Map.put(ep, :title, title)
     end)
     |> Enum.map(fn ep ->
-      %ICalendar.Event{
+      %ICS.Event{
         summary: ep.series_name,
         location: ep.title,
-        dtstart: Timex.to_erl(ep.start_time),
-        dtend: Timex.to_erl(ep.end_time),
+        dtstart: ep.start_time,
+        dtend: ep.end_time,
         description: ep.overview
       }
     end)
-    |> wrap_events
-    |> ICalendar.to_ics
+    |> ICS.encode
   end
-
-  defp wrap_events(events), do: %ICalendar{events: events}
 end

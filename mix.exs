@@ -36,7 +36,6 @@ defmodule TVDBCalendar.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:thetvdb, "~> 1.0.0-alpha.4"},
-      {:icalendar, "~> 0.2.2"},
       {:timex, "~> 3.0"},
       {:uuid, "~> 1.1"},
       {:exprintf, "~> 0.2.1"}
