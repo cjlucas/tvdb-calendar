@@ -1,5 +1,6 @@
 defmodule TVDBCalendar.Repo.User do
   use GenServer
+  require Logger
 
   @api_key "893D74B715CB7B99"
 
@@ -22,6 +23,8 @@ defmodule TVDBCalendar.Repo.User do
   end
 
   def init({username, user_key}) do
+    Logger.metadata([username: username])
+
     :ok = TheTVDB.authenticate(@api_key, username, user_key)
     {:ok, %State{username: username, favorites: []}, 0}
   end
@@ -40,6 +43,8 @@ defmodule TVDBCalendar.Repo.User do
 
   def handle_info(:timeout, state) do
     %{username: user, favorites: prev_favs} = state
+
+    Logger.debug("Hit timeout")
 
     favorites = TheTVDB.User.favorites(user)
     :ok = TVDBCalendar.Repo.Manager.user_refreshed_favorites(prev_favs, favorites)

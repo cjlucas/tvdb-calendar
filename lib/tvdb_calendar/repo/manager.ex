@@ -1,5 +1,6 @@
 defmodule TVDBCalendar.Repo.Manager do
   use GenServer
+  require Logger
 
   def start_link do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -43,8 +44,10 @@ defmodule TVDBCalendar.Repo.Manager do
     Enum.each(state, fn {id, cnt} ->
       cond do
         cnt == 1 && !TVDBCalendar.Repo.has_series?(id) ->
+          Logger.info("Reference count for series #{id} hit 1. Starting repo.")
           {:ok, _} = TVDBCalendar.Repo.Supervisor.start_series_repo(id)
         cnt == 0 && TVDBCalendar.Repo.has_series?(id) ->
+          Logger.info("Reference count for series #{id} hit 0. Stopping repo.")
           :ok = TVDBCalendar.Repo.Supervisor.terminate_series_repo(id)
         true ->
           nil
