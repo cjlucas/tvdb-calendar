@@ -13,9 +13,7 @@ defmodule TVDBCalendar.CalendarController do
           |> Enum.filter(&TVDBCalendar.Repo.has_series?/1)
           |> Enum.map(&TVDBCalendar.Repo.series_info/1)
           |> Enum.map(fn series ->
-            series
-            |> Enum.into(%{})
-            |> Map.update!(:episodes, fn episodes ->
+            Map.update!(series, :episodes, fn episodes ->
               Enum.filter(episodes, fn ep ->
                 # Filter out episodes that aired over 30 days ago
                 Timex.diff(ep[:first_aired], now, :days) > -30
