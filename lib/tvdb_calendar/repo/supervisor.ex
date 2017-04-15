@@ -10,11 +10,19 @@ defmodule TVDBCalendar.Repo.Supervisor do
     child = worker(TVDBCalendar.Repo.User, [username, user_key], opts)
     Supervisor.start_child(__MODULE__, child)
   end
-  
+
   def start_series_repo(series_id) do
-    opts = [id: {:series, series_id}, restart: :transient]
+    opts = [id: series_repo_child_id(series_id), restart: :transient]
     child = worker(TVDBCalendar.Repo.Series, [series_id], opts)
     Supervisor.start_child(__MODULE__, child)
+  end
+
+  def terminate_series_repo(series_id) do
+    id = series_repo_child_id(series_id)
+    with :ok <- Supervisor.terminate_child(__MODULE__, id),
+        :ok  <- Supervisor.delete_child(__MODULE__, id) do
+        :ok
+    end
   end
 
   def init(:ok) do
@@ -23,9 +31,8 @@ defmodule TVDBCalendar.Repo.Supervisor do
       worker(TVDBCalendar.Repo.Manager, []),
       worker(TVDBCalendar.Repo.Store, [])
     ]
-    ret = supervise(children, strategy: :one_for_one)
-
-
-    ret
+    supervise(children, strategy: :one_for_one)
   end
+
+  defp series_repo_child_id(series_id), do: {:series, series_id}
 end

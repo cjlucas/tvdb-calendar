@@ -36,7 +36,7 @@ defmodule TVDBCalendar.Repo.Manager do
         cnt == 1 && !TVDBCalendar.Repo.has_series?(id) ->
           {:ok, _} = TVDBCalendar.Repo.Supervisor.start_series_repo(id)
         cnt == 0 && TVDBCalendar.Repo.has_series?(id) ->
-          :ok = TVDBCalendar.Repo.Series.stop(id)
+          :ok = TVDBCalendar.Repo.Supervisor.terminate_series_repo(id)
         true ->
           nil
       end
