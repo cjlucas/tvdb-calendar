@@ -17,11 +17,6 @@ defmodule TVDBCalendar do
     ret = Supervisor.start_link(children, opts)
 
     #TVDBCalendar.Repo.add_user("cjlucas", "77274F4783EE9EE1")
-    
-    TVDBCalendar.Repo.Store.all_users()
-    |> Enum.each(fn %{username: username, key: key} ->
-      TVDBCalendar.Repo.Supervisor.start_user_repo(username, key)
-    end)
 
     ret
   end

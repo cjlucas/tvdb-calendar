@@ -6,7 +6,7 @@ defmodule TVDBCalendar.Repo.Manager do
   end
 
   def init(:ok) do
-    {:ok, Map.new}
+    {:ok, Map.new, 0}
   end
 
   def user_refreshed_favorites(prev, curr) do
@@ -15,6 +15,15 @@ defmodule TVDBCalendar.Repo.Manager do
 
   def user_removed(favorites) do
     user_refreshed_favorites(favorites, [])
+  end
+
+  def handle_info(:timeout, state) do
+    TVDBCalendar.Repo.Store.all_users()
+    |> Enum.each(fn %{username: username, key: key} ->
+      TVDBCalendar.Repo.Supervisor.start_user_repo(username, key)
+    end)
+
+    {:noreply, state}
   end
 
   def handle_cast({:user_refreshed_favorites, prev, curr}, state) do

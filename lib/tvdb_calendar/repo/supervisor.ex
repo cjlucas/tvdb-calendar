@@ -28,8 +28,8 @@ defmodule TVDBCalendar.Repo.Supervisor do
   def init(:ok) do
     children = [
       supervisor(Registry, [:unique, TVDBCalendar.Repo.Registry]),
-      worker(TVDBCalendar.Repo.Manager, []),
-      worker(TVDBCalendar.Repo.Store, [])
+      worker(TVDBCalendar.Repo.Store, []),
+      worker(TVDBCalendar.Repo.Manager, [])
     ]
     supervise(children, strategy: :one_for_one)
   end
