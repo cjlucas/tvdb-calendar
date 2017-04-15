@@ -31,10 +31,6 @@ defmodule TVDBCalendar.Repo.Series do
     via(series_id) |> GenServer.call(:refresh_episodes)
   end
 
-  def stop(series_id) do
-    via(series_id) |> GenServer.stop
-  end
-
   def init(series_id) do
     %{series_name: name, airs_time: time, runtime: runtime} = TheTVDB.Series.info(series_id)
 
