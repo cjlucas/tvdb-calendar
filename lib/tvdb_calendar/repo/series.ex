@@ -36,9 +36,9 @@ defmodule TVDBCalendar.Repo.Series do
 
     state = %State{
       series_id: series_id,
-      airs_time: parse_time(time),
+      airs_time: time,
       series_name: name,
-      runtime: String.to_integer(runtime),
+      runtime: runtime,
       episodes: []
     }
 
@@ -66,32 +66,17 @@ defmodule TVDBCalendar.Repo.Series do
   defp do_fetch_episodes(series_id) do
     TheTVDB.Series.episodes(series_id)
     |> Stream.filter(fn ep ->
-      ep.first_aired != ""
+      ep.first_aired != nil
     end)
     |> Enum.map(fn ep ->
       %{
         episode_name: ep.episode_name,
         season_num: ep.aired_season,
         episode_num: ep.aired_episode_number,
-        first_aired: Timex.parse!(ep.first_aired, "%Y-%m-%d", :strftime) |> NaiveDateTime.to_date,
+        first_aired: ep.first_aired,
         overview: ep.overview
       }
     end)
-  end
-
-  defp parse_time(time) do
-    formats = ["%l:%M %p", "%H:%M", "%k:%M"]
-    parse_time(time, formats)
-  end
-
-  defp parse_time(_time, []), do: ~T[00:00:00]
-  defp parse_time(time, [fmt | rest]) do
-    case Timex.parse(time, fmt, :strftime) do
-      {:ok, t}    ->
-        NaiveDateTime.to_time(t)
-      {:error, _} ->
-        parse_time(time, rest)
-    end
   end
 
   defp via(series_id) do
