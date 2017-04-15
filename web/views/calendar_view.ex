@@ -15,8 +15,8 @@ defmodule TVDBCalendar.CalendarView do
         Map.get(ep, :season_num) || 0,
         Map.get(ep, :episode_num) || 0
       ]
-      
-      title = :io_lib.format(@title_fmt, args) |> :erlang.iolist_to_binary
+     
+      title = :io_lib.format(@title_fmt, args) |> IO.chardata_to_string
       Map.put(ep, :title, title)
     end)
     |> Enum.map(fn ep ->
