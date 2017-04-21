@@ -3,3 +3,15 @@
 body {
     margin-top: 40px;
 }
+
+h1>div {
+    color: #D74B4B;
+}
+
+.ui.olive.button {
+    background-color: #475F77;
+}
+
+.ui.olive.button:hover {
+    background-color: #354B5E;
+}

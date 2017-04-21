@@ -20,13 +20,16 @@ exports.config = {
       // }
     },
     stylesheets: {
-      joinTo: "css/app.css",
-      order: {
-        after: [
+      joinTo: {
+          "css/app.css": [
             "semantic/dist/semantic.min.css",
             "web/static/css/app.css"
-        ] // concat app.css last
+          ]
       }
+      //order: {
+        //after: [
+        //] // concat app.css last
+      //}
     },
     templates: {
       joinTo: "js/app.js"
@@ -60,7 +63,8 @@ exports.config = {
       ignore: [/web\/static\/vendor/]
     },
     copycat: {
-        themes: ["semantic/dist/themes"]
+        themes: ["semantic/dist/themes"],
+        css: ["semantic/dist"]
     }
   },
 
