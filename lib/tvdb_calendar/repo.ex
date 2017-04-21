@@ -1,10 +1,11 @@
 defmodule TVDBCalendar.Repo do
   def add_user(username, user_key) do
-    case TVDBCalendar.Repo.Store.add_user(username, user_key) do
+    case TVDBCalendar.Repo.Supervisor.start_user_repo(username, user_key) do
       {:ok, _} ->
-        {:ok, _} = TVDBCalendar.Repo.Supervisor.start_user_repo(username, user_key)
-        :ok
-      {:error, reason} ->
+        TVDBCalendar.Repo.Store.add_user(username, user_key)
+      {:error, :already_started} ->
+        {:error, :user_exists}
+      {:error, {reason, _}} ->
         {:error, reason}
     end
   end

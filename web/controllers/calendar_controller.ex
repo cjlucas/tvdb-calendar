@@ -4,7 +4,7 @@ defmodule TVDBCalendar.CalendarController do
   def index(conn, %{"id" => id}) do
     IO.puts("GOT ID: #{id}")
 
-    case TVDBCalendar.Repo.Store.lookup_user(id) do
+    case TVDBCalendar.Repo.Store.user_by_id(id) do
       {:ok, %{username: user}} ->
         now = DateTime.utc_now()
 

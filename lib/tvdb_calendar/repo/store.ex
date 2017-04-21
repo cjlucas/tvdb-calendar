@@ -35,8 +35,12 @@ defmodule TVDBCalendar.Repo.Store do
     GenServer.call(__MODULE__, {:add_user, username, user_key})
   end
 
-  def lookup_user(id) do
-    GenServer.call(__MODULE__, {:lookup_user, id})
+  def user_by_id(id) do
+    GenServer.call(__MODULE__, {:user_by_id, id})
+  end
+
+  def user_by_name(name) do
+    GenServer.call(__MODULE__, {:user_by_name, name})
   end
 
   def handle_call(:all_users, _from, state) do
@@ -62,24 +66,37 @@ defmodule TVDBCalendar.Repo.Store do
     end
   end
 
-  def handle_call({:lookup_user, id}, _from, state) do
+  def handle_call({:user_by_id, id}, _from, state) do
     %{id_map: map, table: table} = state
 
     ret = case Map.get(map, id) do
       user when is_binary(user) ->
-        IO.puts inspect :dets.lookup(table, user)
-        record = :dets.lookup(table, user)
-                 |> List.first
-                 |> elem(1)
-                 |> Keyword.put(:username, user)
-                 |> Enum.into(%{})
-
-        {:ok, record}
-        _ ->
-          {:error, :no_user_found}
+        lookup_user(table, user)
+      _ ->
+        {:error, :no_user_found}
     end
 
     {:reply, ret, state}
+  end
+
+  def handle_call({:user_by_name, name}, _from, state) do
+    %{table: table} = state
+    {:reply, lookup_user(table, name), state}
+  end
+
+  defp lookup_user(table, user) do
+    case :dets.lookup(table, user) do
+      [] ->
+        {:error, :no_user_found}
+      [record] ->
+        record =
+          record
+          |> elem(1)
+          |> Keyword.put(:username, user)
+          |> Enum.into(%{})
+
+        {:ok, record}
+    end
   end
 
   def terminate(_reason, table) do

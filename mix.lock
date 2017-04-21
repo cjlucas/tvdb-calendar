@@ -20,7 +20,7 @@
   "poison": {:hex, :poison, "3.1.0", "d9eb636610e096f86f25d9a46f35a9facac35609a7591b3be3326e99a0484665", [:mix], []},
   "ranch": {:hex, :ranch, "1.3.2", "e4965a144dc9fbe70e5c077c65e73c57165416a901bd02ea899cfd95aa890986", [:rebar3], []},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.1", "28a4d65b7f59893bc2c7de786dec1e1555bd742d336043fe644ae956c3497fbe", [:make, :rebar], []},
-  "thetvdb": {:hex, :thetvdb, "1.0.0-alpha.4", "78c2ffff81a268cf72f97ab5aa5ba45d9f104f2df7ef63804cb12cda51cbaa73", [:mix], [{:httpoison, "~> 0.11.1", [hex: :httpoison, optional: false]}, {:poison, "~> 3.1", [hex: :poison, optional: false]}, {:timex, "~> 3.1", [hex: :timex, optional: false]}]},
+  "thetvdb": {:hex, :thetvdb, "1.0.0-alpha.5", "01950a2d8d38532e974517af2e57a5618592856d889d453dea897e9b786887f5", [:mix], [{:httpoison, "~> 0.11.1", [hex: :httpoison, optional: false]}, {:poison, "~> 3.1", [hex: :poison, optional: false]}, {:timex, "~> 3.1", [hex: :timex, optional: false]}]},
   "timex": {:hex, :timex, "3.1.13", "48b33162e3ec33e9a08fb5f98e3f3c19c3e328dded3156096c1969b77d33eef0", [:mix], [{:combine, "~> 0.7", [hex: :combine, optional: false]}, {:gettext, "~> 0.10", [hex: :gettext, optional: false]}, {:tzdata, "~> 0.1.8 or ~> 0.5", [hex: :tzdata, optional: false]}]},
   "tzdata": {:hex, :tzdata, "0.5.11", "3d5469a9f46bdf4a8760333dbdabdcc4751325035c454b10521f71e7c611ae50", [:mix], [{:hackney, "~> 1.0", [hex: :hackney, optional: false]}]},
   "uuid": {:hex, :uuid, "1.1.7", "007afd58273bc0bc7f849c3bdc763e2f8124e83b957e515368c498b641f7ab69", [:mix], []}}

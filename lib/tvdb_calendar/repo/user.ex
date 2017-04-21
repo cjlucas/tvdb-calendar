@@ -25,8 +25,12 @@ defmodule TVDBCalendar.Repo.User do
   def init({username, user_key}) do
     Logger.metadata([username: username])
 
-    :ok = TheTVDB.authenticate(@api_key, username, user_key)
-    {:ok, %State{username: username, favorites: []}, 0}
+    case TheTVDB.authenticate(@api_key, username, user_key) do
+      :ok ->
+        {:ok, %State{username: username, favorites: []}, 0}
+      {:error, reason} ->
+        {:stop, reason}
+    end
   end
 
   def handle_call(:favorites, _from, state) do

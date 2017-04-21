@@ -17,7 +17,10 @@ defmodule TVDBCalendar.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
-    get "/calendar", CalendarController, :index
+    get "/login", LoginController, :index
+    post "/login", LoginController, :create
+    get "/logout", LoginController, :delete
+    get "/calendar/:id", CalendarController, :index
   end
 
   # Other scopes may use custom stacks.
