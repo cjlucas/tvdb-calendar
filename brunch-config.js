@@ -22,7 +22,10 @@ exports.config = {
     stylesheets: {
       joinTo: "css/app.css",
       order: {
-        after: ["web/static/css/app.css"] // concat app.css last
+        after: [
+            "semantic/dist/semantic.min.css",
+            "web/static/css/app.css"
+        ] // concat app.css last
       }
     },
     templates: {
@@ -42,7 +45,8 @@ exports.config = {
     // Dependencies and current project directories to watch
     watched: [
       "web/static",
-      "test/static"
+      "test/static",
+        "semantic/dist"
     ],
 
     // Where to compile files to
@@ -54,12 +58,18 @@ exports.config = {
     babel: {
       // Do not use ES6 compiler in vendor code
       ignore: [/web\/static\/vendor/]
+    },
+    copycat: {
+        themes: ["semantic/dist/themes"]
     }
   },
 
   modules: {
     autoRequire: {
-      "js/app.js": ["web/static/js/app"]
+      "js/app.js": [
+          "semantic/dist",
+          "web/static/js/app"
+      ]
     }
   },
 

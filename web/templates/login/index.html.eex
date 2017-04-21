@@ -1,0 +1,11 @@
+<div><%= get_flash(@conn, :login_msg) %></div>
+
+<%= form_tag("/login", method: :post, class: "ui large form") %>
+<div class="field">
+    <input type="text" name="username" placeholder="Username">
+</div>
+<div class="field">
+    <input type="password" name="acct_id" placeholder="Account ID">
+</div>
+<button class="ui fluid massive olive submit button">Login</button>
+</form>
