@@ -71,6 +71,8 @@ defmodule TVDBCalendar.Repo.Series do
         state =
           if is_nil(name) do
             %{series_name: name, airs_time: time, runtime: runtime} = TheTVDB.Series.info(id)
+            time = if is_nil(time), do: ~T[00:00:00], else: time
+            runtime = if is_nil(runtime), do: 0, else: runtime
             %{state | series_name: name, airs_time: time, runtime: runtime, episodes: []}
           else
             state
