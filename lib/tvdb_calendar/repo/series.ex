@@ -1,5 +1,6 @@
 defmodule TVDBCalendar.Repo.Series do
   use GenServer
+  require Logger
 
   defmodule State do
     defstruct [:series_id, :airs_time, :runtime, :series_name, :episodes]
@@ -32,17 +33,7 @@ defmodule TVDBCalendar.Repo.Series do
   end
 
   def init(series_id) do
-    %{series_name: name, airs_time: time, runtime: runtime} = TheTVDB.Series.info(series_id)
-
-    state = %State{
-      series_id: series_id,
-      airs_time: time,
-      series_name: name,
-      runtime: runtime,
-      episodes: []
-    }
-
-    {:ok, state, 0}
+    {:ok, %State{series_id: series_id}, 0}
   end
 
   def handle_call(:info, _from, state) do
@@ -57,10 +48,25 @@ defmodule TVDBCalendar.Repo.Series do
   end
 
   def handle_info(:timeout, state) do
-    %{series_id: id} = state
+    %{series_id: id, series_name: name} = state
 
-    episodes = do_fetch_episodes(id)
-    {:noreply, State.put_episodes(state, episodes)}
+    try do
+      state =
+        if is_nil(name) do
+          %{series_name: name, airs_time: time, runtime: runtime} = TheTVDB.Series.info(id)
+          %{state | series_name: name, airs_time: time, runtime: runtime, episodes: []}
+        else
+          state
+        end
+
+      episodes = do_fetch_episodes(id)
+      {:noreply, State.put_episodes(state, episodes)}
+    rescue
+      e ->
+        Logger.error("Received error while fetching series info: #{inspect e}")
+        # TODO: configure proper retry interval
+        {:noreply, state, 5000}
+    end
   end
 
   defp do_fetch_episodes(series_id) do
