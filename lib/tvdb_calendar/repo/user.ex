@@ -48,11 +48,16 @@ defmodule TVDBCalendar.Repo.User do
   def handle_info(:timeout, state) do
     %{username: user, favorites: prev_favs} = state
 
-    Logger.debug("Hit timeout")
+    favorites =
+      try do
+        TheTVDB.User.favorites(user)
+      rescue
+        e ->
+          Logger.debug("Failed to fetch user favorites: #{inspect e}")
+          prev_favs
+      end
 
-    favorites = TheTVDB.User.favorites(user)
     :ok = TVDBCalendar.Repo.Manager.user_refreshed_favorites(prev_favs, favorites)
-
     {:noreply, %{state | favorites: favorites, next_refresh: now() + @refresh_interval}, @refresh_interval}
   end
 
