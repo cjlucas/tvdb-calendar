@@ -4,7 +4,7 @@ defmodule TVDBCalendar.Repo.User do
 
   @api_key "893D74B715CB7B99"
 
-  @refresh_interval 60 * 1000
+  @refresh_interval Application.fetch_env!(:tvdb_calendar, :user_refresh_interval) * 1000
 
   defmodule State do
     defstruct [:username, :favorites, :next_refresh]
@@ -47,6 +47,8 @@ defmodule TVDBCalendar.Repo.User do
 
   def handle_info(:timeout, state) do
     %{username: user, favorites: prev_favs} = state
+
+    Logger.debug("Refreshing user favorites")
 
     favorites =
       try do

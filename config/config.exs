@@ -17,6 +17,10 @@ config :tvdb_calendar, TVDBCalendar.Endpoint,
   pubsub: [name: TVDBCalendar.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
+config :tvdb_calendar,
+  series_refresh_interval: 3600 * 3,
+  user_refresh_interval: 3600
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
