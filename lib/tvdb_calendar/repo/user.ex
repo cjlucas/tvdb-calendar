@@ -53,7 +53,7 @@ defmodule TVDBCalendar.Repo.User do
         TheTVDB.User.favorites(user)
       rescue
         e ->
-          Logger.debug("Failed to fetch user favorites: #{inspect e}")
+          Logger.error("Failed to fetch user favorites: #{inspect e}")
           prev_favs
       end
 

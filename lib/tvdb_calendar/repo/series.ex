@@ -33,6 +33,8 @@ defmodule TVDBCalendar.Repo.Series do
   end
 
   def init(series_id) do
+    Logger.metadata([series_id: series_id])
+
     {:ok, %State{series_id: series_id}, 0}
   end
 
