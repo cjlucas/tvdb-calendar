@@ -42,7 +42,16 @@ defmodule TVDBCalendar.Repo.Series do
 
   def handle_call(:info, _from, state) do
     %{next_refresh: t} = state
-    {:reply, Map.take(state, [:series_name, :episodes]), state, timeout(t)}
+
+    info =
+      state
+      |> Map.take([:series_name, :episodes])
+      |> Enum.reject(&is_nil(elem(&1, 1)))
+      |> Enum.into(%{})
+      |> Map.put_new(:series_name, "")
+      |> Map.put_new(:episodes, [])
+
+    {:reply, info, state, timeout(t)}
   end
 
   def handle_call(:refresh_episodes, _from, state) do
