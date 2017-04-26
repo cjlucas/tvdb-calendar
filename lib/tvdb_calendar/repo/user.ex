@@ -51,11 +51,11 @@ defmodule TVDBCalendar.Repo.User do
     Logger.debug("Refreshing user favorites")
 
     favorites =
-      try do
-        TheTVDB.User.favorites(user)
-      rescue
-        e ->
-          Logger.error("Failed to fetch user favorites: #{inspect e}")
+      case TheTVDB.User.favorites(user) do
+        {:ok, favorites} ->
+          favorites
+        {:error, reason} ->
+          Logger.error("Failed to fetch user favorites: #{inspect reason}")
           prev_favs
       end
 
