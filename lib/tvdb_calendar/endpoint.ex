@@ -7,8 +7,9 @@ defmodule TVDBCalendar.Endpoint do
   #
   # You should set gzip to true if you are running phoenix.digest
   # when deploying your static files in production.
+  @compress_assets Application.get_env(:tvdb_calendar, __MODULE__) |> Keyword.get(:compress_assets, false)
   plug Plug.Static,
-    at: "/", from: :tvdb_calendar, gzip: false,
+    at: "/", from: :tvdb_calendar, gzip: @compress_assets,
     only: ~w(themes css fonts images js favicon.ico robots.txt)
 
   # Code reloading can be explicitly enabled under the
