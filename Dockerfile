@@ -12,4 +12,4 @@ ADD . /tvdb
 
 WORKDIR /tvdb
 RUN chmod +x build.sh
-ENTRYPOINT ./build.sh
+CMD ./build.sh
