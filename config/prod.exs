@@ -14,6 +14,7 @@ use Mix.Config
 config :tvdb_calendar, TVDBCalendar.Endpoint,
   http: [port: {:system, "PORT"}],
   url: [host: "example.com", port: 80],
+  server: true,
   cache_static_manifest: "priv/static/manifest.json"
 
 # Do not print debug messages in production
