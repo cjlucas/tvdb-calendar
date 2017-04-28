@@ -16,7 +16,7 @@
           <div class="ui middle aligned center aligned grid">
               <div class="ten wide column">
                   <h1 class="ui header logo">
-                      <div class="content" style="font-size: 2.0em">TVDBCalendar</div>
+                      <div class="content" style="font-size: 2.0em">TVDBCalendar Test</div>
                   </h1>
                   <div class="ui divider"></div>
               </div>
