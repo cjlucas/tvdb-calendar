@@ -1,9 +1,10 @@
-FROM base/archlinux
+FROM gentoo/stage3-amd64
 MAINTAINER Chris Lucas
 
 ENV MIX_ENV prod
 
-RUN pacman -Syu --noconfirm && pacman -S --noconfirm sed elixir nodejs npm grep awk
+RUN echo "dev-lang/elixir ~amd64" >> /etc/portage/package.accept_keywords
+RUN emerge-webrsync && emerge elixir nodejs
 RUN npm i -g brunch
 
 EXPOSE 8080
