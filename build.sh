@@ -6,5 +6,5 @@ brunch build --production
 mix phx.digest
 mix release
 
-mkdir /artifacts
-cp _build/prod/rel/tvdb_calendar/releases/$APP_VERSION/tvdb_calendar.tar.gz /artifacts/tvdb_calendar-$APP_VERSION.tar.gz
+#mkdir /artifacts
+cp -v _build/prod/rel/tvdb_calendar/releases/$APP_VERSION/tvdb_calendar.tar.gz /artifacts/tvdb_calendar-$APP_VERSION.tar.gz
