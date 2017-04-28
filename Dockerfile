@@ -6,7 +6,7 @@ ENV MIX_ENV prod
 RUN echo "dev-lang/elixir ~amd64" >> /etc/portage/package.accept_keywords
 # Required by nodejs-6.9.4
 RUN echo "dev-libs/openssl -bindist" >> /etc/portage/package.use/nodejs
-RUN emerge-webrsync && emerge elixir nodejs
+RUN emerge-webrsync && emerge --unmerge openssh && emerge elixir nodejs
 RUN npm i -g brunch
 
 EXPOSE 8080
