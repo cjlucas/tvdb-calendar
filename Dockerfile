@@ -4,6 +4,7 @@ MAINTAINER Chris Lucas
 ENV MIX_ENV prod
 
 RUN echo "dev-lang/elixir ~amd64" >> /etc/portage/package.accept_keywords
+RUN echo "dev-libs/openssl ~amd64" >> /etc/portage/package.accept_keywords
 RUN emerge-webrsync && emerge elixir nodejs
 RUN npm i -g brunch
 
