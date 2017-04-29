@@ -2,6 +2,8 @@ defmodule TVDBCalendar.Repo.Series do
   use GenServer
   require Logger
 
+  @vsn 1
+
   @refresh_interval Application.fetch_env!(:tvdb_calendar, :series_refresh_interval) * 1000
 
   defmodule State do

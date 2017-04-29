@@ -2,6 +2,8 @@ defmodule TVDBCalendar.Repo.Manager do
   use GenServer
   require Logger
 
+  @vsn 1
+
   def start_link do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end

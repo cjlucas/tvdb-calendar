@@ -2,6 +2,8 @@ defmodule TVDBCalendar.Repo.User do
   use GenServer
   require Logger
 
+  @vsn 1
+
   @api_key "893D74B715CB7B99"
 
   @refresh_interval Application.fetch_env!(:tvdb_calendar, :user_refresh_interval) * 1000

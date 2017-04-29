@@ -1,6 +1,8 @@
 defmodule TVDBCalendar.Repo.Store do
   use GenServer
 
+  @vsn 1
+
   @default_table :repo_store
 
   @type record :: %{id: binary, username: binary, key: binary}
