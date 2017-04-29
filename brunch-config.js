@@ -22,7 +22,6 @@ exports.config = {
     stylesheets: {
       joinTo: {
           "css/app.css": [
-            "semantic/dist/semantic.min.css",
             "web/static/css/app.css"
           ]
       }
@@ -49,7 +48,6 @@ exports.config = {
     watched: [
       "web/static",
       "test/static",
-        "semantic/dist"
     ],
 
     // Where to compile files to
@@ -62,16 +60,11 @@ exports.config = {
       // Do not use ES6 compiler in vendor code
       ignore: [/web\/static\/vendor/]
     },
-    copycat: {
-        themes: ["semantic/dist/themes"],
-        css: ["semantic/dist"]
-    }
   },
 
   modules: {
     autoRequire: {
       "js/app.js": [
-          "semantic/dist",
           "web/static/js/app"
       ]
     }
