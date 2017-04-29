@@ -18,7 +18,7 @@ defmodule TVDBCalendar.LoginController do
         |> redirect(to: "/")
       {:ok, _} ->
         conn
-        |> put_flash(:error, "Login failed (reason: Bad username/password)")
+        |> put_flash(:error, "Login failed (reason: Bad username/account id)")
         |> redirect(to: "/login")
       {:error, reason} ->
         IO.puts("ERRRO")
