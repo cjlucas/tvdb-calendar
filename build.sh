@@ -9,7 +9,7 @@ if [[ $UP_FROM != "" ]]; then
     echo "Building release to upgrade from version $UP_FROM"
     mix release --upgrade --upfrom=$UP_FROM
 else
-    echo "$UP_FROM was not specified, won't specifying --upgrade"
+    echo "\$UP_FROM was not specified, won't specifying --upgrade"
     mix release
 fi
 
