@@ -7,14 +7,19 @@ defmodule TVDBCalendar.LoginController do
   end
 
   def create(conn, %{"username" => username, "acct_id" => acct_id}) do
-    IO.puts("OMGHERE")
+    username = String.trim(username)
+    acct_id  = String.trim(acct_id)
 
     case find_or_create_user(username, acct_id) do
-      {:ok, %{id: id}} ->
+      {:ok, %{id: id, username: ^username, key: ^acct_id}} ->
         conn
         |> put_session(:uid, id)
         |> put_flash(:info, "Login successful")
         |> redirect(to: "/")
+      {:ok, _} ->
+        conn
+        |> put_flash(:error, "Login failed (reason: Bad username/account id)")
+        |> redirect(to: "/login")
       {:error, reason} ->
         IO.puts("ERRRO")
         conn
