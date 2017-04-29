@@ -16,7 +16,8 @@ config :tvdb_calendar, TVDBCalendar.Endpoint,
   url: [host: "example.com", port: 80],
   server: true,
   cache_static_manifest: "priv/static/manifest.json",
-  secret_key_base: System.get_env("SECRET")
+  secret_key_base: System.get_env("SECRET"),
+  compress_assets: true
 
 # Do not print debug messages in production
 config :logger, level: :info

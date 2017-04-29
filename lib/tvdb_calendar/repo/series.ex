@@ -57,8 +57,14 @@ defmodule TVDBCalendar.Repo.Series do
   def handle_call(:refresh_episodes, _from, state) do
     %{series_id: id, next_refresh: t} = state
 
-    episodes = do_fetch_episodes(id)
-    {:reply, :ok, State.put_episodes(state, episodes), timeout(t)}
+    state = case do_fetch_episodes(id) do
+      {:ok, episodes} ->
+        State.put_episodes(state, episodes)
+      {:error, _} ->
+        state
+    end
+
+    {:reply, :ok, state, timeout(t)}
   end
 
   def handle_info(:timeout, state) do
@@ -66,43 +72,51 @@ defmodule TVDBCalendar.Repo.Series do
     
     Logger.debug("Refreshing series information")
 
-    state =
-      try do
-        state =
-          if is_nil(name) do
-            %{series_name: name, airs_time: time, runtime: runtime} = TheTVDB.Series.info(id)
-            time = if is_nil(time), do: ~T[00:00:00], else: time
-            runtime = if is_nil(runtime), do: 0, else: runtime
-            %{state | series_name: name, airs_time: time, runtime: runtime, episodes: []}
-          else
-            state
-          end
-
-        episodes = do_fetch_episodes(id)
-        State.put_episodes(state, episodes)
-      rescue
-        e ->
-          Logger.error("Received error while fetching series info: #{inspect e}")
-          state
+    state = if is_nil(name) do
+      case TheTVDB.Series.info(id) do
+        {:ok, %{series_name: name, airs_time: time, runtime: runtime}} ->
+          time = if is_nil(time), do: ~T[00:00:00], else: time
+          runtime = if is_nil(runtime), do: 0, else: runtime
+          %{state | series_name: name, airs_time: time, runtime: runtime, episodes: []}
+        {:error, reason} ->
+          Logger.error("Received error while fetching series info: #{inspect reason}")
       end
+    else
+      state
+    end
 
+    state = case do_fetch_episodes(id) do
+      {:ok, episodes} ->
+        State.put_episodes(state, episodes)
+      {:error, _} ->
+        state
+    end
     {:noreply, %{state | next_refresh: now() + @refresh_interval}, @refresh_interval}
   end
 
   defp do_fetch_episodes(series_id) do
-    TheTVDB.Series.episodes(series_id)
-    |> Stream.filter(fn ep ->
-      ep.first_aired != nil
-    end)
-    |> Enum.map(fn ep ->
-      %{
-        episode_name: ep.episode_name,
-        season_num: ep.aired_season,
-        episode_num: ep.aired_episode_number,
-        first_aired: ep.first_aired,
-        overview: ep.overview
-      }
-    end)
+    case TheTVDB.Series.episodes(series_id) do
+      {:ok, episodes} ->
+        episodes =
+          episodes
+          |> Stream.filter(fn ep ->
+            ep.first_aired != nil
+          end)
+          |> Enum.map(fn ep ->
+            %{
+              episode_name: ep.episode_name,
+              season_num: ep.aired_season,
+              episode_num: ep.aired_episode_number,
+              first_aired: ep.first_aired,
+              overview: ep.overview
+            }
+          end)
+
+        {:ok, episodes}
+      {:error, reason} ->
+        Logger.error("Error fetching episodes: #{inspect reason}")
+        {:error, reason}
+    end
   end
 
   defp now do
