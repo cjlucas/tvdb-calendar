@@ -7,7 +7,8 @@ defmodule TVDBCalendar.LoginController do
   end
 
   def create(conn, %{"username" => username, "acct_id" => acct_id}) do
-    IO.puts("OMGHERE")
+    username = String.trim(username)
+    acct_id  = String.trim(acct_id)
 
     case find_or_create_user(username, acct_id) do
       {:ok, %{id: id, username: ^username, key: ^acct_id}} ->
