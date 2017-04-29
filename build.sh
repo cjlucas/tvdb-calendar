@@ -1,7 +1,7 @@
 mix local.hex --force
 mix local.rebar --force
 mix deps.get
-npm i
+npm i >> /dev/null
 brunch build --production
 mix phx.digest
 
