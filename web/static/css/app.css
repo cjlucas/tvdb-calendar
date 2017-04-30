@@ -16,7 +16,7 @@ h1.ui.header {
 
 @media only screen and (min-width: 320px) and (max-width: 480px) {
     h1.ui.header {
-        font-size: 3.6em;
+        font-size: 3.4em;
         line-height: 1em;
     }
 }
