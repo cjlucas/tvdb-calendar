@@ -10,21 +10,27 @@ defmodule TVDBCalendar.LoginController do
     username = String.trim(username)
     acct_id  = String.trim(acct_id)
 
-    case find_or_create_user(username, acct_id) do
-      {:ok, %{id: id, username: ^username, key: ^acct_id}} ->
-        conn
-        |> put_session(:uid, id)
-        |> put_flash(:info, "Login successful")
-        |> redirect(to: "/")
-      {:ok, _} ->
-        conn
-        |> put_flash(:error, "Login failed (reason: Bad username/account id)")
-        |> redirect(to: "/login")
-      {:error, reason} ->
-        IO.puts("ERRRO")
-        conn
-        |> put_flash(:error, "Login failed (reason: #{inspect reason})")
-        |> redirect(to: "/login")
+    if String.length(username) == 0 || String.length(acct_id) == 0 do
+      conn
+      |> put_flash(:error, "Please specify username and account id")
+      |> redirect(to: "/login")
+    else
+      case find_or_create_user(username, acct_id) do
+        {:ok, %{id: id, username: ^username, key: ^acct_id}} ->
+          conn
+          |> put_session(:uid, id)
+          |> put_flash(:info, "Login successful")
+          |> redirect(to: "/")
+        {:ok, _} ->
+          conn
+          |> put_flash(:error, "Login failed (reason: Bad username/account id)")
+          |> redirect(to: "/login")
+        {:error, reason} ->
+          IO.puts("ERRRO")
+          conn
+          |> put_flash(:error, "Login failed (reason: #{inspect reason})")
+          |> redirect(to: "/login")
+      end
     end
   end
 
