@@ -1,5 +1,9 @@
 /* This file is for your main application css. */
 
+html {
+    overflow-x: hidden;
+}
+
 body {
     margin-top: 40px;
 }
