@@ -3,7 +3,7 @@
 <%= form_tag("/login", method: :post, class: "ui large form") %>
 <div class="field">
     <label>Username</label>
-    <input type="text" name="username" placeholder="Username">
+    <input type="text" name="username">
 </div>
 <div class="field">
     <label>Account Identifier
@@ -11,7 +11,7 @@
             <i class="help circle icon"></i>
         </span>
     </label>
-    <input type="password" name="acct_id" placeholder="Account ID">
+    <input type="password" name="acct_id">
 </div>
 <button class="ui fluid massive olive submit button">Login</button>
 </form>
