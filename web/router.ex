@@ -21,6 +21,8 @@ defmodule TVDBCalendar.Router do
     post "/login", LoginController, :create
     get "/logout", LoginController, :delete
     get "/calendar/:id", CalendarController, :index
+
+    put "/user", UserController, :update
   end
 
   # Other scopes may use custom stacks.

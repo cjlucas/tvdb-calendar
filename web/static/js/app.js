@@ -22,6 +22,16 @@ import "phoenix_html"
 
 
 function attach() {
+    const token = document.querySelector("meta[name='_csrf']").content;
+
+    console.log(token);
+
+    const opts = {
+        method: 'PUT',
+        headers: {'x-csrf-token' : token},
+        credentials: 'same-origin'
+    };
+
     const elements = document.getElementsByClassName("setting");
     for (var i = 0; i < elements.length; i++) {
         const el = elements.item(i);
@@ -30,6 +40,11 @@ function attach() {
             const key = el.name;
             const val = el.options[el.selectedIndex].value;
             console.log(`key: ${key} value: ${val}`);
+
+            fetch(`/user?${key}=${val}`, opts)
+            .then(resp => {
+                console.log(resp);
+            });
         });
     }
 }
