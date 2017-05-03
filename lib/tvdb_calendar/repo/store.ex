@@ -5,7 +5,13 @@ defmodule TVDBCalendar.Repo.Store do
 
   @default_table :repo_store
 
-  @type record :: %{id: binary, username: binary, key: binary}
+  @type setting :: :days_before | :days_after
+
+  @type record :: %{id: binary, username: binary, key: binary, settings: []}
+
+  @defaults [days_before: 30, days_after: 365 * 3]
+
+  @settings Keyword.keys(@defaults)
 
   defmodule State do
     defstruct table: :repo_store, id_map: Map.new
@@ -45,14 +51,19 @@ defmodule TVDBCalendar.Repo.Store do
     GenServer.call(__MODULE__, {:user_by_name, name})
   end
 
+  def put_setting(id, setting, value) when setting in @settings do
+    GenServer.call(__MODULE__, {:put_setting, id, setting, value})
+  end
+
   def handle_call(:all_users, _from, state) do
-    %{table: table} = state
+    %{table: table, id_map: map} = state
 
     users =
-      :dets.match_object(table, :"$1")
-      |> Enum.map(fn {username, record} ->
-        Keyword.put(record, :username, username) |> Enum.into(%{})
-      end)
+      Map.values(map)
+      |> Enum.map(&lookup_user(table, &1))
+      |> Enum.filter(&elem(&1, 0) == :ok)
+      |> Enum.map(&elem(&1, 1))
+
     {:reply, users, state}
   end
   
@@ -86,14 +97,39 @@ defmodule TVDBCalendar.Repo.Store do
     {:reply, lookup_user(table, name), state}
   end
 
+  def handle_call({:put_setting, id, setting, value}, _from, state) do
+    %{table: table, id_map: map} = state
+
+    ret = 
+      case Map.get(map, id) do
+        user when is_binary(user) ->
+          case lookup_user(table, user) do
+          {:ok, record} ->
+            record = 
+              record
+              |> Enum.into([])
+              |> Keyword.put(setting, value)
+
+            :dets.insert(table, {user, record})
+            :ok
+          {:error, reason} ->
+            {:error, reason}
+          end
+        _ ->
+          {:error, :no_user_found}
+      end
+
+    {:reply, ret, state}
+  end
+
   defp lookup_user(table, user) do
     case :dets.lookup(table, user) do
       [] ->
         {:error, :no_user_found}
-      [record] ->
+      [{user, record}] ->
         record =
-          record
-          |> elem(1)
+          @defaults
+          |> Keyword.merge(record)
           |> Keyword.put(:username, user)
           |> Enum.into(%{})
 

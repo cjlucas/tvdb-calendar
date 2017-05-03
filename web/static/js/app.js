@@ -19,3 +19,24 @@ import "phoenix_html"
 // paths "./socket" or full ones "web/static/js/socket".
 
 // import socket from "./socket"
+
+
+function attach() {
+    const elements = document.getElementsByClassName("setting");
+    for (var i = 0; i < elements.length; i++) {
+        const el = elements.item(i);
+        el.addEventListener("change", e => {
+            const el  = e.target;
+            const key = el.name;
+            const val = el.options[el.selectedIndex].value;
+            console.log(`key: ${key} value: ${val}`);
+        });
+    }
+}
+
+
+if (document.readyState === 'complete' || document.readyState !== 'loading') {
+    attach();
+} else {
+    attach();
+}
