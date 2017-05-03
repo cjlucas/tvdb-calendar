@@ -5,9 +5,9 @@ defmodule TVDBCalendar.CalendarController do
     IO.puts("GOT ID: #{id}")
 
     case TVDBCalendar.Repo.Store.user_by_id(id) do
-      {:ok, %{username: user, days_before: days_before, days_after: days_after}} ->
+      {:ok, %{username: user, settings: settings}} ->
         now = DateTime.utc_now()
-
+                
         series =
           TVDBCalendar.Repo.user_favorites(user)
           |> Enum.filter(&TVDBCalendar.Repo.has_series?/1)
@@ -15,9 +15,10 @@ defmodule TVDBCalendar.CalendarController do
           |> Enum.map(fn series ->
             Map.update!(series, :episodes, fn episodes ->
               Enum.filter(episodes, fn ep ->
-                # Filter out episodes that aired over 30 days ago
                 diff = Timex.diff(ep[:first_aired], now, :days)
-                diff > -days_before && diff < days_after
+
+                diff >= -settings[:days_before] &&
+                  (settings[:days_after] == :infinity || diff < settings[:days_after])
               end)
             end)
           end)

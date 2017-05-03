@@ -7,9 +7,14 @@ defmodule TVDBCalendar.Repo.Store do
 
   @type setting :: :days_before | :days_after
 
-  @type record :: %{id: binary, username: binary, key: binary, settings: []}
+  @type settings :: [
+    days_before: number,
+    days_after: number | :infinity
+  ]
 
-  @defaults [days_before: 30, days_after: 365 * 3]
+  @type record :: %{id: binary, username: binary, key: binary, settings: settings}
+
+  @defaults [days_before: 30, days_after: :infinity]
 
   @settings Keyword.keys(@defaults)
 
@@ -108,7 +113,7 @@ defmodule TVDBCalendar.Repo.Store do
             record = 
               record
               |> Enum.into([])
-              |> Keyword.put(setting, value)
+              |> Keyword.update(:settings, [{setting, value}], &Keyword.put(&1, setting, value))
 
             :dets.insert(table, {user, record})
             :ok
@@ -128,8 +133,8 @@ defmodule TVDBCalendar.Repo.Store do
         {:error, :no_user_found}
       [{user, record}] ->
         record =
-          @defaults
-          |> Keyword.merge(record)
+          record
+          |> Keyword.update(:settings, @defaults, &Keyword.merge(@defaults, &1))
           |> Keyword.put(:username, user)
           |> Enum.into(%{})
 
