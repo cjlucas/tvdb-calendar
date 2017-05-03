@@ -1,4 +1,9 @@
 <div>
+    <div class="ui text container">
+        Only include episodes that have aired between
+        <%= select(:user, :airs_before, @before_opts, class: :setting) %> and
+        <%= select(:user, :airs_after, @after_opts, class: :setting) %>
+    </div>
     <a href="<%= calendar_path(@conn, :index, @id) %>" class="ui fluid massive olive submit button">
     <i class="cloud download icon"></i>
     Download Calendar
