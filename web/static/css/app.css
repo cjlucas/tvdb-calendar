@@ -29,6 +29,6 @@ h1.ui.header {
   background-color: #7092AB;
 }
 
-.alert:empty {
+.ui.message:empty {
   display: none;
 }

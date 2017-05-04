@@ -33,13 +33,11 @@
           </div>
       </div>
       <div class="ui center aligned grid">
-          <div class="row">
-              <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
-              <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
-          </div>
-
           <div class="eight wide computer fourteen wide phone column">
-              <%= render @view_module, @view_template, assigns %>
+            <div class="ui blue message"><%= get_flash(@conn, :info) %></div>
+            <div class="ui red message"><%= get_flash(@conn, :error) %></div>
+
+            <%= render @view_module, @view_template, assigns %>
           </div>
       </div>
       <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
