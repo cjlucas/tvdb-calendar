@@ -19,7 +19,6 @@ defmodule TVDBCalendar.LoginController do
         {:ok, %{id: id, username: ^username, key: ^acct_id}} ->
           conn
           |> put_session(:uid, id)
-          |> put_flash(:info, "Login successful")
           |> redirect(to: "/")
         {:ok, _} ->
           conn
