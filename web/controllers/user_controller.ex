@@ -7,7 +7,7 @@ defmodule TVDBCalendar.UserController do
 
     params
     |> Enum.filter(&Enum.member?(@valid_params, elem(&1, 0)))
-    |> Enum.map(fn {k, v} -> {String.to_atom(k), v} end)
+    |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
     |> Enum.map(fn {k, v} ->
       cond do
         v == "infinity" ->
