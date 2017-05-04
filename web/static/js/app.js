@@ -21,11 +21,16 @@ import "phoenix_html"
 // import socket from "./socket"
 
 
-function attach() {
+const setError = (text) => _setText(`.alert-danger[role = 'alert']`, text);
+const setInfo  = (text) => _setText(`.alert-info[role = 'alert']`, text);
+
+const _setText = (selector, text) => {
+    document.querySelector(selector).innerHTML = text;
+};
+
+
+const addUserSettingHandlers = () => {
     const token = document.querySelector("meta[name='_csrf']").content;
-
-    console.log(token);
-
     const opts = {
         method: 'PUT',
         headers: {'x-csrf-token' : token},
@@ -39,19 +44,25 @@ function attach() {
             const el  = e.target;
             const key = el.name;
             const val = el.options[el.selectedIndex].value;
-            console.log(`key: ${key} value: ${val}`);
 
             fetch(`/user?${key}=${val}`, opts)
+            .catch(reason => {
+                console.error(`Update setting failed: ${reason}`);
+                setError('Failed to update setting');
+            })
             .then(resp => {
-                console.log(resp);
+                if (resp.status != 200) {
+                    console.error(resp)
+                    setError('Failed to update setting');
+                }
             });
         });
     }
-}
+};
 
 
 if (document.readyState === 'complete' || document.readyState !== 'loading') {
-    attach();
+    addUserSettingHandlers();
 } else {
-    attach();
+    document.addEventListener('DOMContentLoaded', addUserSettingHandlers);
 }
