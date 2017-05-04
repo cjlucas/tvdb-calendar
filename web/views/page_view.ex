@@ -8,8 +8,8 @@ defmodule TVDBCalendar.PageView do
   ]
 
   @after_opts [
-    {"one week from now", 7},
-    {"one month from now", 31},
+    {"next week", 7},
+    {"next month", 31},
     {"forever", :infinity}
   ]
 
