@@ -116,7 +116,6 @@ defmodule TVDBCalendar.Repo.Store do
               |> Keyword.update(:settings, [{setting, value}], &Keyword.put(&1, setting, value))
 
             :dets.insert(table, {user, record})
-            :ok
           {:error, reason} ->
             {:error, reason}
           end
