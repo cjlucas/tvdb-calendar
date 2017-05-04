@@ -6,7 +6,7 @@ defmodule TVDBCalendar.CalendarController do
 
     case TVDBCalendar.Repo.Store.user_by_id(id) do
       {:ok, %{username: user, settings: settings}} ->
-        now = DateTime.utc_now()
+        now = Timex.Timezone.convert(DateTime.utc_now, "EST")
 
         series =
           TVDBCalendar.Repo.user_favorites(user)
