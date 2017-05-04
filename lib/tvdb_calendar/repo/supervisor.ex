@@ -1,7 +1,7 @@
 defmodule TVDBCalendar.Repo.Supervisor do
   use Supervisor
   require Logger
-  
+
   def start_link do
     Supervisor.start_link(__MODULE__, :ok, name: __MODULE__)
   end
@@ -17,7 +17,7 @@ defmodule TVDBCalendar.Repo.Supervisor do
   def start_series_repo(series_id) do
     opts = [id: series_repo_child_id(series_id), restart: :transient]
     child = worker(TVDBCalendar.Repo.Series, [series_id], opts)
-    
+
     Logger.debug("Starting Repo.Series (id: #{series_id})")
     Supervisor.start_child(__MODULE__, child)
   end

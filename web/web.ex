@@ -28,7 +28,7 @@ defmodule TVDBCalendar.Web do
 
       import TVDBCalendar.Router.Helpers
       import TVDBCalendar.Gettext
-      
+
       require Logger
     end
   end

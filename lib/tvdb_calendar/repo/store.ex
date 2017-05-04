@@ -28,7 +28,7 @@ defmodule TVDBCalendar.Repo.Store do
 
   def init(table) do
     :dets.open_file(table, type: :set)
-   
+
     id_map =
       :dets.match(table, :"$1")
       |> Enum.map(&List.first/1)
@@ -74,7 +74,7 @@ defmodule TVDBCalendar.Repo.Store do
 
     {:reply, users, state}
   end
-  
+
   def handle_call({:add_user, username, user_key}, _from, state) do
     %{id_map: map, table: table} = state
 
@@ -112,7 +112,7 @@ defmodule TVDBCalendar.Repo.Store do
       user when is_binary(user) ->
         case lookup_user(table, user) do
           {:ok, record} ->
-            record = 
+            record =
               record
               |> Enum.into([])
               |> Keyword.update(:settings, [{setting, value}], &Keyword.put(&1, setting, value))

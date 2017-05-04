@@ -1,12 +1,12 @@
 <div>
-    <div class="ui text container">
-        Only include episodes that aired from
-        <%= airs_before_select(@settings[:days_before], class: :setting) %> through
-        <%= airs_after_select(@settings[:days_after], class: :setting) %>
-    </div>
-    <div class="ui hidden divider"></div>
-    <a href="<%= calendar_path(@conn, :index, @id) %>" class="ui fluid massive olive submit button">
-    <i class="cloud download icon"></i>
-    Download Calendar
+  <div class="ui text container">
+    Only include episodes that aired from
+    <%= airs_before_select(@settings[:days_before], class: :setting) %> through
+    <%= airs_after_select(@settings[:days_after], class: :setting) %>
+  </div>
+  <div class="ui hidden divider"></div>
+  <a href="<%= calendar_path(@conn, :index, @id) %>" class="ui fluid massive olive submit button">
+  <i class="cloud download icon"></i>
+  Download Calendar
 </a>
 </div>

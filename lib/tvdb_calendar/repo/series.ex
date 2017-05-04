@@ -71,7 +71,7 @@ defmodule TVDBCalendar.Repo.Series do
 
   def handle_info(:timeout, state) do
     %{series_id: id, series_name: name} = state
-    
+
     Logger.debug("Refreshing series information")
 
     state = if is_nil(name) do

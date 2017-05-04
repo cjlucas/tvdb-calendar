@@ -39,7 +39,7 @@ defmodule TVDBCalendar.LoginController do
     |> clear_session
     |> redirect(to: "/")
   end
-  
+
   defp find_or_create_user(username, user_key) do
     case TVDBCalendar.Repo.Store.user_by_name(username) do
       {:ok, user} ->

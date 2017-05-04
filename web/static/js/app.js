@@ -25,44 +25,44 @@ const setError = (text) => _setText(`.alert-danger[role = 'alert']`, text);
 const setInfo  = (text) => _setText(`.alert-info[role = 'alert']`, text);
 
 const _setText = (selector, text) => {
-    document.querySelector(selector).innerHTML = text;
+  document.querySelector(selector).innerHTML = text;
 };
 
 
 const addUserSettingHandlers = () => {
-    const token = document.querySelector("meta[name='_csrf']").content;
-    const opts = {
-        method: 'PUT',
-        headers: {'x-csrf-token' : token},
-        credentials: 'same-origin'
-    };
+  const token = document.querySelector("meta[name='_csrf']").content;
+  const opts = {
+    method: 'PUT',
+    headers: {'x-csrf-token' : token},
+    credentials: 'same-origin'
+  };
 
-    const elements = document.getElementsByClassName("setting");
-    for (var i = 0; i < elements.length; i++) {
-        const el = elements.item(i);
-        el.addEventListener("change", e => {
-            const el  = e.target;
-            const key = el.name;
-            const val = el.options[el.selectedIndex].value;
+  const elements = document.getElementsByClassName("setting");
+  for (var i = 0; i < elements.length; i++) {
+    const el = elements.item(i);
+    el.addEventListener("change", e => {
+      const el  = e.target;
+      const key = el.name;
+      const val = el.options[el.selectedIndex].value;
 
-            fetch(`/user?${key}=${val}`, opts)
-            .catch(reason => {
-                console.error(`Update setting failed: ${reason}`);
-                setError('Failed to update setting');
-            })
-            .then(resp => {
-                if (resp.status != 200) {
-                    console.error(resp)
-                    setError('Failed to update setting');
-                }
-            });
-        });
-    }
+      fetch(`/user?${key}=${val}`, opts)
+      .catch(reason => {
+        console.error(`Update setting failed: ${reason}`);
+        setError('Failed to update setting');
+      })
+      .then(resp => {
+        if (resp.status != 200) {
+          console.error(resp)
+          setError('Failed to update setting');
+        }
+      });
+    });
+  }
 };
 
 
 if (document.readyState === 'complete' || document.readyState !== 'loading') {
-    addUserSettingHandlers();
+  addUserSettingHandlers();
 } else {
-    document.addEventListener('DOMContentLoaded', addUserSettingHandlers);
+  document.addEventListener('DOMContentLoaded', addUserSettingHandlers);
 }

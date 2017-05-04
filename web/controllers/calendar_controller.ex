@@ -7,7 +7,7 @@ defmodule TVDBCalendar.CalendarController do
     case TVDBCalendar.Repo.Store.user_by_id(id) do
       {:ok, %{username: user, settings: settings}} ->
         now = DateTime.utc_now()
-                
+
         series =
           TVDBCalendar.Repo.user_favorites(user)
           |> Enum.filter(&TVDBCalendar.Repo.has_series?/1)

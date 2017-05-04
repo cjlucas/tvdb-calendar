@@ -3,7 +3,7 @@ defmodule TVDBCalendar.PageController do
 
   def index(conn, _params) do
     id = get_session(conn, :uid)
-    
+
     case TVDBCalendar.Repo.Store.user_by_id(id) do
       {:error, reason} ->
         Logger.info("Received error #{reason} on user lookup, redirect to /login")
