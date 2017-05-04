@@ -28,6 +28,8 @@ defmodule TVDBCalendar.Web do
 
       import TVDBCalendar.Router.Helpers
       import TVDBCalendar.Gettext
+      
+      require Logger
     end
   end
 
@@ -44,6 +46,8 @@ defmodule TVDBCalendar.Web do
       import TVDBCalendar.Router.Helpers
       import TVDBCalendar.ErrorHelpers
       import TVDBCalendar.Gettext
+
+      require Logger
     end
   end
 
@@ -57,6 +61,7 @@ defmodule TVDBCalendar.Web do
     quote do
       use Phoenix.Channel
       import TVDBCalendar.Gettext
+      require Logger
     end
   end
 
