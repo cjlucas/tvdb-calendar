@@ -22,7 +22,6 @@ defmodule TVDBCalendar.PageView do
   end
 
   defp _select(name, options, selected_value, attrs) do
-    IO.puts ("in _select #{inspect options} #{inspect selected_value}")
     attrs = Keyword.put(attrs, :name, name)
     content_tag :select, attrs do
       Enum.map(options, fn {text, value} ->
