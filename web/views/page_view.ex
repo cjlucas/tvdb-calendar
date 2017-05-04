@@ -21,7 +21,7 @@ defmodule TVDBCalendar.PageView do
     _select(:days_after, @after_opts, cur_setting, attrs)
   end
 
-  defp _select(name, options, selected_value, attrs \\ []) do
+  defp _select(name, options, selected_value, attrs) do
     IO.puts ("in _select #{inspect options} #{inspect selected_value}")
     attrs = Keyword.put(attrs, :name, name)
     content_tag :select, attrs do
