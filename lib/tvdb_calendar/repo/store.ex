@@ -59,6 +59,9 @@ defmodule TVDBCalendar.Repo.Store do
   def put_setting(id, setting, value) when setting in @settings do
     GenServer.call(__MODULE__, {:put_setting, id, setting, value})
   end
+  def put_setting(_id, _setting, _value) do
+    {:error, :unknown_setting}
+  end
 
   def handle_call(:all_users, _from, state) do
     %{table: table, id_map: map} = state
