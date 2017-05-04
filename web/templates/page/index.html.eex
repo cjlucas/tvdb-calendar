@@ -3,7 +3,7 @@
   <%= airs_before_select(@settings[:days_before], class: :setting) %> through
   <%= airs_after_select(@settings[:days_after], class: :setting) %>
   <div class="ui hidden divider"></div>
-  <a href="<%= calendar_path(@conn, :index, @id) %>" class="ui fluid massive olive submit button">
+  <a href="<%= calendar_path(@conn, :index, @id) %>" class="ui fluid huge olive submit button">
   <i class="cloud download icon"></i>
   Download Calendar
 </a>
