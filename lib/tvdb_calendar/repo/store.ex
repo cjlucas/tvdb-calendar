@@ -108,10 +108,9 @@ defmodule TVDBCalendar.Repo.Store do
   def handle_call({:put_setting, id, setting, value}, _from, state) do
     %{table: table, id_map: map} = state
 
-    ret = 
-      case Map.get(map, id) do
-        user when is_binary(user) ->
-          case lookup_user(table, user) do
+    ret = case Map.get(map, id) do
+      user when is_binary(user) ->
+        case lookup_user(table, user) do
           {:ok, record} ->
             record = 
               record
@@ -121,10 +120,10 @@ defmodule TVDBCalendar.Repo.Store do
             :dets.insert(table, {user, record})
           {:error, reason} ->
             {:error, reason}
-          end
-        _ ->
-          {:error, :no_user_found}
-      end
+        end
+      _ ->
+        {:error, :no_user_found}
+    end
 
     {:reply, ret, state}
   end
