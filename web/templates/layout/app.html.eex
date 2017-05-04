@@ -32,8 +32,8 @@
               <div class="ui divider"></div>
           </div>
       </div>
-      <div class="ui center aligned grid">
-          <div class="eight wide computer fourteen wide phone column">
+      <div class="ui center aligned container grid">
+          <div class="eight wide computer sixteen wide phone column">
             <div class="ui blue message"><%= get_flash(@conn, :info) %></div>
             <div class="ui red message"><%= get_flash(@conn, :error) %></div>
 
