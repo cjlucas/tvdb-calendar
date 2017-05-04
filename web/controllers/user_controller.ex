@@ -20,6 +20,6 @@ defmodule TVDBCalendar.UserController do
     end)
     |> Enum.each(fn {k, v} -> TVDBCalendar.Repo.Store.put_setting(id, k, v) end)
 
-    send_resp(conn, 201, "")
+    send_resp(conn, 200, "")
   end
 end
