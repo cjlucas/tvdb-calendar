@@ -101,9 +101,7 @@ defmodule TVDBCalendar.Repo.Series do
       {:ok, episodes} ->
         episodes =
           episodes
-          |> Stream.filter(fn ep ->
-            ep.first_aired != nil
-          end)
+          |> Enum.reject(fn ep -> is_nil(ep.first_aired) end)
           |> Enum.map(fn ep ->
             %{
               episode_name: ep.episode_name,
