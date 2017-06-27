@@ -41,10 +41,15 @@ defmodule TVDBCalendar.Repo.User do
   end
 
   def handle_call(:refresh_favorites, _from, state) do
-    %{username: user, next_refresh: t} = state
+    %{username: user, favorites: prev_favs, next_refresh: t} = state
 
-    favorites = TheTVDB.User.favorites(user)
-    {:reply, :ok, %{state | favorites: favorites}, timeout(t)}
+    {reply, favorites} =
+      case TheTVDB.User.favorites(user) do
+        {:ok, favorites} -> {:ok, favorites}
+        {:error, reason} -> {{:error, reason}, prev_favs}
+      end
+
+    {:reply, reply, %{state | favorites: favorites}, timeout(t)}
   end
 
   def handle_info(:timeout, state) do
