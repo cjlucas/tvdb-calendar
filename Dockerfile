@@ -1,15 +1,19 @@
-FROM gentoo/stage3-amd64
+FROM ubuntu:18.04
 MAINTAINER Chris Lucas
 
 ENV MIX_ENV prod
 
-RUN echo "dev-lang/elixir ~amd64" >> /etc/portage/package.accept_keywords
-# Required by nodejs-6.9.4
-RUN echo "dev-libs/openssl -bindist" >> /etc/portage/package.use/nodejs
-RUN emerge-webrsync && emerge --unmerge openssh && emerge --jobs=4 elixir nodejs && rm -rf /usr/portage /var/tmp/portage
+RUN apt-get update && apt-get install -y gnupg wget locales npm
+
+RUN wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && \
+    dpkg -i erlang-solutions_1.0_all.deb && \
+        apt-get update && \
+            apt-get install -y esl-erlang=1:21.1 elixir=1.8.2-1
+
+
 RUN npm i -g brunch
 
-RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen
+RUN locale-gen en_US.UTF-8
 ENV LANG en_US.utf8
 ENV LC_ALL en_US.utf8
 
