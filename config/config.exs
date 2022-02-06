@@ -21,6 +21,8 @@ config :tvdb_calendar,
   series_refresh_interval: 3600 * 3,
   user_refresh_interval: 3600
 
+config :phoenix, :json_library, Jason
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
