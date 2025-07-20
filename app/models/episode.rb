@@ -7,8 +7,8 @@ class Episode < ApplicationRecord
   validates :episode_number, presence: true, numericality: { greater_than: 0 }
   validates :air_date, presence: true
 
-  scope :upcoming, -> { where('air_date >= ?', Date.current) }
-  scope :aired, -> { where('air_date < ?', Date.current) }
+  scope :upcoming, -> { where("air_date >= ?", Date.current) }
+  scope :aired, -> { where("air_date < ?", Date.current) }
 
   def episode_code
     "S#{season_number.to_s.rjust(2, '0')}E#{episode_number.to_s.rjust(2, '0')}"

@@ -15,7 +15,7 @@ class IcsGenerator
     ]
 
     episodes = @user.episodes.upcoming.includes(:series).order(:air_date)
-    
+
     episodes.each do |episode|
       calendar.concat(build_event(episode))
     end
@@ -29,14 +29,14 @@ class IcsGenerator
   def build_event(episode)
     # Generate unique ID for the event
     uid = "episode-#{episode.id}-#{episode.series.tvdb_id}@tvdbcalendar.com"
-    
+
     # Format dates for ICS (YYYYMMDD)
     date_start = episode.air_date.strftime("%Y%m%d")
     date_end = episode.air_date.strftime("%Y%m%d")
-    
+
     # Create timestamp for when this event was created/modified
     dtstamp = Time.current.utc.strftime("%Y%m%dT%H%M%SZ")
-    
+
     event = [
       "BEGIN:VEVENT",
       "UID:#{uid}",
@@ -46,21 +46,21 @@ class IcsGenerator
       "SUMMARY:#{escape_ics_text(episode.full_title)}",
       "LOCATION:#{escape_ics_text(episode.location_text)}"
     ]
-    
+
     # Add description with IMDB link if available
     if episode.series.imdb_url
       description = "Watch on IMDB: #{episode.series.imdb_url}"
       event << "DESCRIPTION:#{escape_ics_text(description)}"
       event << "URL:#{episode.series.imdb_url}"
     end
-    
+
     event << "END:VEVENT"
     event
   end
 
   def escape_ics_text(text)
     return "" if text.blank?
-    
+
     # Escape special characters for ICS format
     text.gsub(/[\\,;"]/) { |match| "\\#{match}" }
         .gsub(/\n/, "\\n")

@@ -9,7 +9,7 @@ class UserSyncIndividualJob < ApplicationJob
   rescue => e
     Rails.logger.error "UserSyncIndividualJob: Failed to sync user ID #{user&.id || 'unknown'}: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
-    
+
     # Broadcast error to user
     ActionCable.server.broadcast(
       "sync_#{user_pin}",

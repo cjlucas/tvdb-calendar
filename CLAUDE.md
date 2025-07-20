@@ -46,6 +46,17 @@ The following specialized agents work together to implement your requests:
 - Prefer clarity over cleverness
 - Write self-documenting code
 
+### RuboCop Linting
+- **CRITICAL**: ALL generated code MUST pass RuboCop linting
+- Run `rubocop` or `rails rubocop` after any code changes
+- Fix all violations before committing code
+- Follow the project's `.rubocop.yml` configuration
+- **Why**: Consistent code style across the entire codebase, automated CI checks will fail with violations
+- **Commands**: 
+  - Check: `rubocop`
+  - Auto-fix: `rubocop -a` (safe corrections only)
+  - Auto-fix all: `rubocop -A` (includes unsafe corrections)
+
 ### Testing
 - Minitest for all tests
 - Fixtures or factories for test data

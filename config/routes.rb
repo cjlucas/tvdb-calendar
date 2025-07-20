@@ -7,13 +7,13 @@ Rails.application.routes.draw do
 
   # Root route - homepage with PIN input
   root "home#index"
-  
+
   # User management
   post "users", to: "users#create"
-  
+
   # ICS calendar download
   get "calendar/:pin", to: "calendar#show", as: :user_calendar
-  
+
   # ActionCable WebSocket endpoint
-  mount ActionCable.server => '/cable'
+  mount ActionCable.server => "/cable"
 end
