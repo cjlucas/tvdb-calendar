@@ -2,7 +2,7 @@ require "test_helper"
 
 class CalendarControllerTest < ActionDispatch::IntegrationTest
   def setup
-    @user = User.create!(pin: "123456")
+    @user = User.create!(pin: "calendar_test_#{rand(100000..999999)}")
     @series = Series.create!(
       user: @user,
       tvdb_id: 123,
@@ -35,7 +35,7 @@ class CalendarControllerTest < ActionDispatch::IntegrationTest
     get user_calendar_path(@user.pin), headers: { "Accept" => "text/calendar" }
     
     assert_response :success
-    assert_includes response.headers["Content-Disposition"], "tvdb-calendar-123456.ics"
+    assert_includes response.headers["Content-Disposition"], "tvdb-calendar-#{@user.pin}.ics"
   end
 
   test "should return 404 for non-existent user" do

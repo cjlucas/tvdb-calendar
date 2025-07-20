@@ -2,7 +2,7 @@ require "test_helper"
 
 class IcsGeneratorTest < ActiveSupport::TestCase
   def setup
-    @user = User.create!(pin: "123456")
+    @user = User.create!(pin: "ics_test_#{rand(100000..999999)}")
     @series = Series.create!(
       user: @user,
       tvdb_id: 123,
@@ -30,7 +30,7 @@ class IcsGeneratorTest < ActiveSupport::TestCase
     assert_includes ics_content, "PRODID:-//TVDB Calendar//NONSGML v1.0//EN"
     
     # Check calendar metadata
-    assert_includes ics_content, "X-WR-CALNAME:TV Shows - 123456"
+    assert_includes ics_content, "X-WR-CALNAME:TV Shows - #{@user.pin}"
     assert_includes ics_content, "X-WR-CALDESC:Upcoming episodes for your favorite TV shows from TheTVDB"
   end
 
