@@ -69,6 +69,16 @@ The following specialized agents work together to implement your requests:
 - PR reviews before merging
 - Keep main branch deployable
 
+### Git Commit/Push Policy
+- **CRITICAL**: NEVER commit or push code without explicit developer consent
+- **ALWAYS** ask permission before running `git commit` or `git push`
+- Developer must explicitly request commits/pushes with phrases like:
+  - "commit this"
+  - "push these changes"
+  - "commit and push"
+- **Exception**: Only commit/push when directly instructed by the developer
+- **Why**: Developers need control over their git history and when changes go to remote repositories
+
 ## Custom Patterns
 
 ### Privacy and Security
