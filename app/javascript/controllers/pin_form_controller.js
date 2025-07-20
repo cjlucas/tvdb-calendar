@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { createConsumer } from "@rails/actioncable"
 
 export default class extends Controller {
-  static targets = ["input", "submit", "progress", "progressFill", "progressText", "result", "error", "calendarUrl", "copyButton", "errorMessage"]
+  static targets = ["input", "submit", "progress", "progressFill", "progressText", "progressCounter", "progressPercentage", "result", "error", "calendarUrl", "copyButton", "errorMessage"]
   static outlets = []
 
   connect() {
@@ -113,7 +113,7 @@ export default class extends Controller {
               return
             }
             
-            this.updateProgress(data.percentage, data.message)
+            this.updateProgress(data.percentage, data.message, data.current, data.total)
             
             if (data.percentage >= 100) {
               console.log("PinFormController: Sync complete, showing result")
@@ -139,12 +139,18 @@ export default class extends Controller {
     }
   }
 
-  updateProgress(percentage, message) {
+  updateProgress(percentage, message, current = 0, total = 0) {
     if (this.hasProgressFillTarget) {
       this.progressFillTarget.style.width = `${percentage}%`
     }
     if (this.hasProgressTextTarget) {
       this.progressTextTarget.textContent = message
+    }
+    if (this.hasProgressCounterTarget) {
+      this.progressCounterTarget.textContent = `${current} / ${total}`
+    }
+    if (this.hasProgressPercentageTarget) {
+      this.progressPercentageTarget.textContent = `${percentage}%`
     }
   }
 
@@ -152,7 +158,7 @@ export default class extends Controller {
     this.hideAllContainers()
     if (this.hasProgressTarget) {
       this.progressTarget.style.display = "block"
-      this.updateProgress(0, "Starting sync...")
+      this.updateProgress(0, "Starting sync...", 0, 0)
     }
   }
 
