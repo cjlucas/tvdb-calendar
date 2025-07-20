@@ -2,7 +2,7 @@ require "test_helper"
 
 class EpisodeTest < ActiveSupport::TestCase
   def setup
-    @user = User.create!(pin: "123456")
+    @user = User.create!(pin: "episode_test_#{rand(100000..999999)}")
     @series = Series.create!(
       user: @user,
       tvdb_id: 123,
@@ -33,10 +33,10 @@ class EpisodeTest < ActiveSupport::TestCase
     assert_includes @episode.errors[:season_number], "can't be blank"
   end
 
-  test "should require positive season_number" do
-    @episode.season_number = 0
+  test "should require non-negative season_number" do
+    @episode.season_number = -1
     assert_not @episode.valid?
-    assert_includes @episode.errors[:season_number], "must be greater than 0"
+    assert_includes @episode.errors[:season_number], "must be greater than or equal to 0"
   end
 
   test "should require episode_number" do

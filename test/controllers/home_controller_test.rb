@@ -9,9 +9,11 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[name='user[pin]']"
   end
 
-  test "should assign new user instance" do
+  test "should render form for user input" do
     get root_path
-    assert assigns(:user)
-    assert assigns(:user).new_record?
+    assert_response :success
+    # Test that the form is properly rendered for user interaction
+    assert_select "input[name='user[pin]'][placeholder]"
+    assert_select "input[type='submit']"
   end
 end

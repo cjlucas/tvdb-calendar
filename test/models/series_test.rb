@@ -2,7 +2,7 @@ require "test_helper"
 
 class SeriesTest < ActiveSupport::TestCase
   def setup
-    @user = User.create!(pin: "123456")
+    @user = User.create!(pin: "series_test_#{rand(100000..999999)}")
     @series = Series.new(
       user: @user,
       tvdb_id: 123,
@@ -40,7 +40,7 @@ class SeriesTest < ActiveSupport::TestCase
 
   test "should allow same tvdb_id for different users" do
     @series.save!
-    other_user = User.create!(pin: "654321")
+    other_user = User.create!(pin: "other_series_#{rand(100000..999999)}")
     other_series = Series.new(
       user: other_user,
       tvdb_id: 123,
