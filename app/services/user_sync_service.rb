@@ -40,10 +40,11 @@ class UserSyncService
   private
 
   def sync_series(series_id, current, total)
-    broadcast_sync_progress(current, total, "Syncing series #{series_id}...")
-
-    # Get detailed series information
+    # Get detailed series information first to show series name
     series_details = @client.get_series_details(series_id)
+    series_name = series_details["name"] || "Unknown Series"
+    
+    broadcast_sync_progress(current, total, "Syncing: #{series_name}...")
 
     # Find or create series record
     series = @user.series.find_or_initialize_by(tvdb_id: series_id)
@@ -74,7 +75,6 @@ class UserSyncService
       episode.save!
     end
 
-    broadcast_sync_progress(current, total, "Completed series: #{series.name}")
   end
 
   def broadcast_sync_progress(current, total, message)
