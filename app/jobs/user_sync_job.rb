@@ -9,9 +9,9 @@ class UserSyncJob < ApplicationJob
     users_to_sync.find_each do |user|
       begin
         UserSyncService.new(user).call
-        Rails.logger.info "UserSyncJob: Successfully synced user #{user.pin}"
+        Rails.logger.info "UserSyncJob: Successfully synced user ID #{user.id}"
       rescue => e
-        Rails.logger.error "UserSyncJob: Failed to sync user #{user.pin}: #{e.message}"
+        Rails.logger.error "UserSyncJob: Failed to sync user ID #{user.id}: #{e.message}"
       end
     end
   end

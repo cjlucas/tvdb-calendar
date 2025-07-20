@@ -35,7 +35,7 @@ export default class extends Controller {
     event.preventDefault()
     
     const pin = this.inputTarget.value.trim()
-    console.log("PinFormController: PIN entered:", pin)
+    console.log("PinFormController: PIN entered")
     if (!pin) {
       this.showError("Please enter your TheTVDB PIN")
       return
@@ -95,7 +95,7 @@ export default class extends Controller {
   }
 
   subscribeToSyncUpdates(userPin, calendarUrl) {
-    console.log("PinFormController: Subscribing to sync updates for user PIN", userPin)
+    console.log("PinFormController: Subscribing to sync updates")
     
     if (this.subscription) {
       console.log("PinFormController: Unsubscribing from existing subscription")
@@ -123,7 +123,7 @@ export default class extends Controller {
             }
           },
           connected: () => {
-            console.log("PinFormController: ✅ Connected to sync channel for user PIN", userPin)
+            console.log("PinFormController: ✅ Connected to sync channel")
           },
           disconnected: () => {
             console.log("PinFormController: ❌ Disconnected from sync channel")

@@ -70,6 +70,13 @@ The following specialized agents work together to implement your requests:
 - **Why**: Sequential user IDs are easily guessable and expose user data to unauthorized access
 - **Implementation**: Use `User.find_by!(pin: params[:pin])` in controllers, pass PINs to jobs/channels
 
+- **PIN Security**: Treat TheTVDB PINs like passwords - NEVER log actual PIN values
+  - Use database user IDs for logging instead: `"Starting sync for user ID #{@user.id}"`
+  - Frontend: Log actions without PIN values: `"PIN entered"` not `"PIN entered: #{pin}"`
+  - ActionCable: Log channel subscriptions without PINs: `"User subscribed to channel"`
+  - **Why**: PINs are sensitive authentication credentials that could be misused if exposed in logs
+  - **Exception**: PINs can be used functionally (API calls, channel names) but not in log messages
+
 ### Service Objects
 ```yaml
 Services:
