@@ -10,19 +10,19 @@ class UsersController < ApplicationController
       if @user.needs_sync?
         # User needs sync - start background sync and show progress
         Rails.logger.info "UsersController#create: User needs sync, starting background job"
-        UserSyncIndividualJob.perform_later(@user.id)
+        UserSyncIndividualJob.perform_later(@user.pin)
         render json: { 
           status: 'syncing', 
-          user_id: @user.id,
-          calendar_url: user_calendar_url(@user.id)
+          user_pin: @user.pin,
+          calendar_url: user_calendar_url(@user.pin)
         }
       else
         # User is up to date - show calendar URL immediately
         Rails.logger.info "UsersController#create: User is up to date"
         render json: { 
           status: 'ready', 
-          user_id: @user.id,
-          calendar_url: user_calendar_url(@user.id)
+          user_pin: @user.pin,
+          calendar_url: user_calendar_url(@user.pin)
         }
       end
     else
@@ -30,11 +30,11 @@ class UsersController < ApplicationController
       Rails.logger.info "UsersController#create: Creating new user"
       if @user.save
         Rails.logger.info "UsersController#create: New user created with ID #{@user.id}, starting sync"
-        UserSyncIndividualJob.perform_later(@user.id)
+        UserSyncIndividualJob.perform_later(@user.pin)
         render json: { 
           status: 'syncing', 
-          user_id: @user.id,
-          calendar_url: user_calendar_url(@user.id)
+          user_pin: @user.pin,
+          calendar_url: user_calendar_url(@user.pin)
         }
       else
         Rails.logger.error "UsersController#create: Failed to save user: #{@user.errors.full_messages}"

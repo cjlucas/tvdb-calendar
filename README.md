@@ -104,7 +104,7 @@ The application uses SolidQueue for background processing:
 ### Endpoints
 - `GET /`: Homepage with PIN input form
 - `POST /users`: Create/lookup user and start sync
-- `GET /calendar/:user_id`: Download ICS calendar file
+- `GET /calendar/:pin`: Download ICS calendar file
 
 ### ICS Format
 Each episode appears as an all-day event with:

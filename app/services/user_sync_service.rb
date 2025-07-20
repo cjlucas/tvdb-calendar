@@ -83,7 +83,7 @@ class UserSyncService
     Rails.logger.info "UserSyncService: Broadcasting progress - #{percentage}% (#{current}/#{total}) - #{message}"
     
     ActionCable.server.broadcast(
-      "sync_#{@user.id}",
+      "sync_#{@user.pin}",
       {
         current: current,
         total: total,
@@ -92,6 +92,6 @@ class UserSyncService
       }
     )
     
-    Rails.logger.info "UserSyncService: Broadcast sent to channel sync_#{@user.id}"
+    Rails.logger.info "UserSyncService: Broadcast sent to channel sync_#{@user.pin}"
   end
 end
