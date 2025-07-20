@@ -43,7 +43,7 @@ class UserSyncService
     # Get detailed series information first to show series name
     series_details = @client.get_series_details(series_id)
     series_name = series_details["name"] || "Unknown Series"
-    
+
     broadcast_sync_progress(current, total, "Syncing: #{series_name}...")
 
     # Find or create series record
@@ -74,7 +74,6 @@ class UserSyncService
 
       episode.save!
     end
-
   end
 
   def broadcast_sync_progress(current, total, message)
