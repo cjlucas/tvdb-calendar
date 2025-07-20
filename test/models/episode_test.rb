@@ -103,7 +103,7 @@ class EpisodeTest < ActiveSupport::TestCase
       episode_number: 1,
       air_date: Date.current + 1.day
     )
-    
+
     past_episode = Episode.create!(
       series: @series,
       title: "Past Episode",
@@ -125,7 +125,7 @@ class EpisodeTest < ActiveSupport::TestCase
       episode_number: 1,
       air_date: Date.current + 1.day
     )
-    
+
     past_episode = Episode.create!(
       series: @series,
       title: "Past Episode",

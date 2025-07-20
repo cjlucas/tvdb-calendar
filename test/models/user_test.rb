@@ -49,9 +49,9 @@ class UserTest < ActiveSupport::TestCase
   test "mark_as_synced! should update last_synced_at" do
     user = User.create!(pin: "mark_sync_#{rand(100000..999999)}")
     before_time = Time.current
-    
+
     user.mark_as_synced!
-    
+
     # Just ensure it was updated to something recent
     assert user.reload.last_synced_at >= before_time
     assert user.reload.last_synced_at <= Time.current

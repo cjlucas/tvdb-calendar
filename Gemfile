@@ -65,7 +65,7 @@ end
 gem "claude-on-rails", "~> 0.1.3", group: :development
 
 # Environment configuration
-gem "dotenv-rails", group: [:development, :test]
+gem "dotenv-rails", group: [ :development, :test ]
 
 # HTTP client for TheTVDB API
 gem "httparty"

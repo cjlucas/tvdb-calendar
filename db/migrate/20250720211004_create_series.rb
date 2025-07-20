@@ -8,7 +8,7 @@ class CreateSeries < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    
-    add_index :series, [:user_id, :tvdb_id], unique: true
+
+    add_index :series, [ :user_id, :tvdb_id ], unique: true
   end
 end
