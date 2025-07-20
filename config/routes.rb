@@ -12,7 +12,7 @@ Rails.application.routes.draw do
   post "users", to: "users#create"
   
   # ICS calendar download
-  get "calendar/:user_id", to: "calendar#show", as: :user_calendar
+  get "calendar/:pin", to: "calendar#show", as: :user_calendar
   
   # ActionCable WebSocket endpoint
   mount ActionCable.server => '/cable'

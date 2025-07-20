@@ -19,7 +19,7 @@ class CalendarControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should generate ICS calendar" do
-    get user_calendar_path(@user)
+    get user_calendar_path(@user.pin)
     
     assert_response :success
     assert_equal "text/calendar; charset=utf-8", response.content_type
@@ -32,14 +32,14 @@ class CalendarControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should serve ICS with proper filename" do
-    get user_calendar_path(@user), headers: { "Accept" => "text/calendar" }
+    get user_calendar_path(@user.pin), headers: { "Accept" => "text/calendar" }
     
     assert_response :success
     assert_includes response.headers["Content-Disposition"], "tvdb-calendar-123456.ics"
   end
 
   test "should return 404 for non-existent user" do
-    get user_calendar_path(99999)
+    get user_calendar_path("nonexistent")
     
     assert_response :not_found
     assert_equal "User not found", response.body
@@ -48,7 +48,7 @@ class CalendarControllerTest < ActionDispatch::IntegrationTest
   test "should handle empty episode list" do
     @episode.destroy
     
-    get user_calendar_path(@user)
+    get user_calendar_path(@user.pin)
     
     assert_response :success
     calendar_content = response.body

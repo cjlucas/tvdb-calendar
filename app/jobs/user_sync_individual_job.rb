@@ -1,18 +1,18 @@
 class UserSyncIndividualJob < ApplicationJob
   queue_as :default
 
-  def perform(user_id)
-    Rails.logger.info "UserSyncIndividualJob: Starting sync for user #{user_id}"
-    user = User.find(user_id)
+  def perform(user_pin)
+    Rails.logger.info "UserSyncIndividualJob: Starting sync for user with PIN #{user_pin}"
+    user = User.find_by!(pin: user_pin)
     UserSyncService.new(user).call
-    Rails.logger.info "UserSyncIndividualJob: Completed sync for user #{user_id}"
+    Rails.logger.info "UserSyncIndividualJob: Completed sync for user with PIN #{user_pin}"
   rescue => e
-    Rails.logger.error "UserSyncIndividualJob: Failed to sync user #{user_id}: #{e.message}"
+    Rails.logger.error "UserSyncIndividualJob: Failed to sync user with PIN #{user_pin}: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
     
     # Broadcast error to user
     ActionCable.server.broadcast(
-      "sync_#{user_id}",
+      "sync_#{user_pin}",
       {
         current: 0,
         total: 0,

@@ -10,7 +10,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
       response_data = JSON.parse(response.body)
       
       assert_equal "syncing", response_data["status"]
-      assert response_data["user_id"]
+      assert response_data["user_pin"]
       assert response_data["calendar_url"]
       
       user = User.find_by(pin: "123456")
@@ -28,7 +28,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
       response_data = JSON.parse(response.body)
       
       assert_equal "syncing", response_data["status"]
-      assert_equal user.id, response_data["user_id"]
+      assert_equal user.pin, response_data["user_pin"]
     end
   end
 
@@ -41,7 +41,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     response_data = JSON.parse(response.body)
     
     assert_equal "ready", response_data["status"]
-    assert_equal user.id, response_data["user_id"]
+    assert_equal user.pin, response_data["user_pin"]
   end
 
   test "should handle validation errors" do

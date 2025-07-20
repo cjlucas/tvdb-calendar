@@ -1,9 +1,9 @@
 class SyncChannel < ApplicationCable::Channel
   def subscribed
-    user_id = params[:user_id]
-    channel_name = "sync_#{user_id}"
+    user_pin = params[:user_pin]
+    channel_name = "sync_#{user_pin}"
     stream_from channel_name
-    Rails.logger.info "SyncChannel: User #{user_id} subscribed to channel: #{channel_name}"
+    Rails.logger.info "SyncChannel: User with PIN #{user_pin} subscribed to channel: #{channel_name}"
     Rails.logger.info "SyncChannel: Current subscriber count: #{ActionCable.server.connections.count}"
   end
 

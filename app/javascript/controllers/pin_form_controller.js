@@ -78,7 +78,7 @@ export default class extends Controller {
         case "syncing":
           console.log("PinFormController: User needs sync, starting progress display")
           this.showProgress()
-          this.subscribeToSyncUpdates(data.user_id, data.calendar_url)
+          this.subscribeToSyncUpdates(data.user_pin, data.calendar_url)
           break
         default:
           console.error("PinFormController: Unexpected status", data.status)
@@ -94,8 +94,8 @@ export default class extends Controller {
     }
   }
 
-  subscribeToSyncUpdates(userId, calendarUrl) {
-    console.log("PinFormController: Subscribing to sync updates for user", userId)
+  subscribeToSyncUpdates(userPin, calendarUrl) {
+    console.log("PinFormController: Subscribing to sync updates for user PIN", userPin)
     
     if (this.subscription) {
       console.log("PinFormController: Unsubscribing from existing subscription")
@@ -104,7 +104,7 @@ export default class extends Controller {
 
     try {
       this.subscription = this.cable.subscriptions.create(
-        { channel: "SyncChannel", user_id: userId },
+        { channel: "SyncChannel", user_pin: userPin },
         {
           received: (data) => {
             console.log("PinFormController: Received sync data", data)
@@ -123,7 +123,7 @@ export default class extends Controller {
             }
           },
           connected: () => {
-            console.log("PinFormController: ✅ Connected to sync channel for user", userId)
+            console.log("PinFormController: ✅ Connected to sync channel for user PIN", userPin)
           },
           disconnected: () => {
             console.log("PinFormController: ❌ Disconnected from sync channel")

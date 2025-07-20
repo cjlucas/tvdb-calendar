@@ -1,6 +1,6 @@
 class CalendarController < ApplicationController
   def show
-    @user = User.find(params[:user_id])
+    @user = User.find_by!(pin: params[:pin])
     
     ics_content = IcsGenerator.new(@user).generate
     

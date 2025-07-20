@@ -60,10 +60,18 @@ The following specialized agents work together to implement your requests:
 
 ## Custom Patterns
 
-Add your project-specific patterns and conventions here:
+### Privacy and Security
+- **User Identification**: ALWAYS use TheTVDB PINs instead of database user IDs in:
+  - Routes (e.g., `/calendar/:pin` not `/calendar/:user_id`)
+  - Frontend JavaScript (user_pin not user_id)
+  - ActionCable channels (user_pin parameter)
+  - Background job parameters
+  - API responses (user_pin field)
+- **Why**: Sequential user IDs are easily guessable and expose user data to unauthorized access
+- **Implementation**: Use `User.find_by!(pin: params[:pin])` in controllers, pass PINs to jobs/channels
 
+### Service Objects
 ```yaml
-# Example: Custom service object pattern
 Services:
   Pattern: Command pattern with Result objects
   Location: app/services/
