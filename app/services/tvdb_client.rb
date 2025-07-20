@@ -1,0 +1,94 @@
+class TvdbClient
+  include HTTParty
+  base_uri 'https://api4.thetvdb.com/v4'
+
+  def initialize(api_key = nil)
+    @api_key = api_key || ENV['TVDB_API_KEY']
+    raise ArgumentError, 'TVDB API key is required' unless @api_key
+  end
+
+  def authenticate(pin)
+    response = self.class.post('/login', 
+      body: {
+        apikey: @api_key,
+        pin: pin
+      }.to_json,
+      headers: { 'Content-Type' => 'application/json' }
+    )
+
+    if response.success?
+      @token = response.parsed_response['data']['token']
+      @token
+    else
+      raise "Authentication failed: #{response.parsed_response['message']}"
+    end
+  end
+
+  def get_user_favorites
+    raise 'Not authenticated' unless @token
+
+    response = self.class.get('/user/favorites',
+      headers: auth_headers
+    )
+
+    if response.success?
+      data = response.parsed_response['data']
+      # Return array of series IDs, or empty array if none
+      data['series'] || []
+    else
+      raise "Failed to fetch favorites: #{response.parsed_response['message']}"
+    end
+  end
+
+  def get_series_details(series_id)
+    raise 'Not authenticated' unless @token
+
+    response = self.class.get("/series/#{series_id}/extended",
+      headers: auth_headers
+    )
+
+    if response.success?
+      response.parsed_response['data']
+    else
+      raise "Failed to fetch series details: #{response.parsed_response['message']}"
+    end
+  end
+
+  def get_series_episodes(series_id, season = nil)
+    raise 'Not authenticated' unless @token
+
+    url = "/series/#{series_id}/episodes/default"
+    url += "?season=#{season}" if season
+
+    all_episodes = []
+    page = 0
+
+    loop do
+      page_url = "#{url}#{season ? '&' : '?'}page=#{page}"
+      response = self.class.get(page_url, headers: auth_headers)
+
+      if response.success?
+        data = response.parsed_response['data']
+        all_episodes.concat(data['episodes'] || [])
+        
+        # Check if there are more pages
+        total_pages = data.dig('links', 'total_pages') || 1
+        break if page >= total_pages - 1
+        page += 1
+      else
+        raise "Failed to fetch episodes: #{response.parsed_response['message']}"
+      end
+    end
+
+    all_episodes
+  end
+
+  private
+
+  def auth_headers
+    {
+      'Authorization' => "Bearer #{@token}",
+      'Content-Type' => 'application/json'
+    }
+  end
+end
