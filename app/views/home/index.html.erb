@@ -1,0 +1,55 @@
+<div class="container" data-controller="pin-form">
+  <div class="hero">
+    <h1>TVDB Calendar Generator</h1>
+    <p class="subtitle">Generate an ICS calendar file with your favorite TV show episodes</p>
+  </div>
+
+  <div class="form-container">
+    <%= form_with model: @user, url: users_path, local: false, data: { action: "submit->pin-form#submit" } do |form| %>
+      <div class="form-group">
+        <%= form.label :pin, "Your TheTVDB PIN:", class: "form-label" %>
+        <%= form.text_field :pin, class: "form-input", placeholder: "Enter your PIN", data: { "pin-form-target": "input" } %>
+        <div class="form-help">
+          <p>Find your PIN in your <a href="https://thetvdb.com/dashboard" target="_blank">TheTVDB Dashboard</a> under Account → API Access</p>
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <%= form.submit "Generate Calendar", class: "btn btn-primary", data: { "pin-form-target": "submit" } %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="progress-container" data-pin-form-target="progress" style="display: none;">
+    <div class="progress-bar">
+      <div class="progress-fill" data-pin-form-target="progressFill"></div>
+    </div>
+    <div class="progress-text" data-pin-form-target="progressText">Initializing...</div>
+  </div>
+
+  <div class="result-container" data-pin-form-target="result" style="display: none;">
+    <div class="result-success">
+      <h3>🎉 Your calendar is ready!</h3>
+      <p>Copy the link below to subscribe to your TV show calendar:</p>
+      <div class="calendar-url">
+        <input type="text" data-pin-form-target="calendarUrl" readonly class="url-input">
+        <button type="button" data-pin-form-target="copyButton" data-action="click->pin-form#copy" class="btn btn-copy">Copy</button>
+      </div>
+      <div class="instructions">
+        <h4>How to use:</h4>
+        <ul>
+          <li><strong>Google Calendar:</strong> Go to "Other calendars" → "+" → "From URL" → paste the link</li>
+          <li><strong>Apple Calendar:</strong> File → New Calendar Subscription → paste the link</li>
+          <li><strong>Outlook:</strong> Add calendar → From internet → paste the link</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="error-container" data-pin-form-target="error" style="display: none;">
+    <div class="result-error">
+      <h3>❌ Error</h3>
+      <p data-pin-form-target="errorMessage"></p>
+    </div>
+  </div>
+</div>

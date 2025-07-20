@@ -1,0 +1,9 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  pin: "123456"
+  last_synced_at: 2025-07-20 17:09:29
+
+two:
+  pin: "654321"
+  last_synced_at: 2025-07-20 17:09:29

@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  tvdb_id: 123
+  name: "Test Series One"
+  imdb_id: "tt1234567"
+
+two:
+  user: two
+  tvdb_id: 456
+  name: "Test Series Two"
+  imdb_id: "tt7654321"
