@@ -38,3 +38,6 @@
 # ClaudeOnRails
 .claude-on-rails/sessions/
 swarm.log
+
+# Claude Code local memory
+CLAUDE.local.md
