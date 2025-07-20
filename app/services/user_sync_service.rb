@@ -5,7 +5,7 @@ class UserSyncService
   end
 
   def call
-    Rails.logger.info "UserSyncService: Starting sync for user #{@user.pin}"
+    Rails.logger.info "UserSyncService: Starting sync for user ID #{@user.id}"
     
     # Authenticate with the user's PIN
     @client.authenticate(@user.pin)
@@ -14,7 +14,7 @@ class UserSyncService
     favorites = @client.get_user_favorites
     total_series = favorites.length
     
-    Rails.logger.info "UserSyncService: Found #{total_series} favorite series for user #{@user.pin}"
+    Rails.logger.info "UserSyncService: Found #{total_series} favorite series for user ID #{@user.id}"
     
     # Broadcast sync start
     broadcast_sync_progress(0, total_series, "Starting sync...")
@@ -34,7 +34,7 @@ class UserSyncService
     # Broadcast completion
     broadcast_sync_progress(total_series, total_series, "Sync completed!")
     
-    Rails.logger.info "UserSyncService: Completed sync for user #{@user.pin}"
+    Rails.logger.info "UserSyncService: Completed sync for user ID #{@user.id}"
   end
 
   private

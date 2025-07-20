@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   def create
-    Rails.logger.info "UsersController#create: Starting with PIN #{user_params[:pin]}"
+    Rails.logger.info "UsersController#create: Starting user lookup"
     
     @user = User.find_or_initialize_by(pin: user_params[:pin])
     
