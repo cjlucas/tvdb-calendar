@@ -65,14 +65,14 @@ class IcsGenerator
       else
         # Fallback to all-day if time parsing failed
         date_start = episode.air_date.strftime("%Y%m%d")
-        date_end = episode.air_date.strftime("%Y%m%d")
+        date_end = (episode.air_date + 1.day).strftime("%Y%m%d")
         event << "DTSTART;VALUE=DATE:#{date_start}"
         event << "DTEND;VALUE=DATE:#{date_end}"
       end
     else
       # All-day event (current behavior)
       date_start = episode.air_date.strftime("%Y%m%d")
-      date_end = episode.air_date.strftime("%Y%m%d")
+      date_end = (episode.air_date + 1.day).strftime("%Y%m%d")
       event << "DTSTART;VALUE=DATE:#{date_start}"
       event << "DTEND;VALUE=DATE:#{date_end}"
     end
