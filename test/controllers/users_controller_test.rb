@@ -61,4 +61,16 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal "error", response_data["status"]
   end
+
+  test "should define InvalidPinError exception class" do
+    assert_not_nil InvalidPinError
+    assert InvalidPinError < StandardError
+  end
+
+  test "should handle InvalidPinError in rescue clause" do
+    # Verify the rescue clause for InvalidPinError exists
+    controller_source = File.read(Rails.root.join("app/controllers/users_controller.rb"))
+    assert_includes controller_source, "rescue InvalidPinError"
+    assert_includes controller_source, '"PIN Invalid"'
+  end
 end

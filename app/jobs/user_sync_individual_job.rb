@@ -6,6 +6,20 @@ class UserSyncIndividualJob < ApplicationJob
     Rails.logger.info "UserSyncIndividualJob: Starting sync for user ID #{user.id}"
     UserSyncService.new(user).call
     Rails.logger.info "UserSyncIndividualJob: Completed sync for user ID #{user.id}"
+  rescue InvalidPinError => e
+    Rails.logger.error "UserSyncIndividualJob: Invalid PIN for user ID #{user&.id || 'unknown'}: #{e.message}"
+
+    # Broadcast specific error to user
+    ActionCable.server.broadcast(
+      "sync_#{user_pin}",
+      {
+        current: 0,
+        total: 0,
+        percentage: 0,
+        message: "PIN Invalid",
+        error: true
+      }
+    )
   rescue => e
     Rails.logger.error "UserSyncIndividualJob: Failed to sync user ID #{user&.id || 'unknown'}: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")
