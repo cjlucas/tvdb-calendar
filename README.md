@@ -136,4 +136,3 @@ The application is ready for deployment with:
 
 ## License
 
-This project is available as open source.
