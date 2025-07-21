@@ -30,8 +30,8 @@ class NormalizeSeriesSchema < ActiveRecord::Migration[8.0]
   end
 
   def down
-    # Add user_id back to series
-    add_column :series, :user_id, :integer, null: false
+    # Add user_id back to series (nullable initially for safe rollback)
+    add_column :series, :user_id, :integer
 
     # Restore foreign key
     add_foreign_key :series, :users

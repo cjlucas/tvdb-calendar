@@ -75,9 +75,11 @@ class UserSyncService
     )
     series.save!
 
-    # Associate series with user if not already associated
-    unless @user.series.include?(series)
-      @user.user_series.create!(series: series)
+    # Associate series with user (handles race conditions gracefully)
+    begin
+      @user.user_series.find_or_create_by!(series: series)
+    rescue ActiveRecord::RecordNotUnique
+      # Association already exists, continue
     end
 
     # Get episodes for this series

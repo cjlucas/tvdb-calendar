@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_21_030649) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_21_032146) do
   create_table "episodes", force: :cascade do |t|
     t.integer "series_id", null: false
     t.string "title", null: false
@@ -37,7 +37,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_030649) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["tvdb_id"], name: "index_series_on_tvdb_id", unique: true
-    t.index ["tvdb_id"], name: "index_series_on_user_id_and_tvdb_id", unique: true
   end
 
   create_table "user_series", force: :cascade do |t|
