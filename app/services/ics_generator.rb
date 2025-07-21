@@ -100,7 +100,20 @@ class IcsGenerator
         .gsub(/\r/, "")
   end
 
+  # US DST rules as defined by Energy Policy Act of 2005
+  # DST begins: Second Sunday in March at 2:00 AM
+  # DST ends: First Sunday in November at 2:00 AM
+  # These rules have been stable since 2007 and are unlikely to change
+  # If DST rules change, update these constants
+  DST_START_RULE = "FREQ=YEARLY;BYMONTH=3;BYDAY=2SU".freeze
+  DST_END_RULE = "FREQ=YEARLY;BYMONTH=11;BYDAY=1SU".freeze
+  DST_TRANSITION_TIME = "T020000".freeze
+
   def new_york_timezone_definition
+    # Generate timezone definition using current US DST rules
+    # Reference: https://www.timeanddate.com/time/change/usa
+    base_year = 2007 # Year current DST rules took effect
+    
     [
       "BEGIN:VTIMEZONE",
       "TZID:America/New_York",
@@ -108,15 +121,15 @@ class IcsGenerator
       "TZOFFSETFROM:-0500",
       "TZOFFSETTO:-0400",
       "TZNAME:EDT",
-      "DTSTART:20070311T020000",
-      "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU",
+      "DTSTART:#{base_year}0311#{DST_TRANSITION_TIME}",
+      "RRULE:#{DST_START_RULE}",
       "END:DAYLIGHT",
       "BEGIN:STANDARD",
       "TZOFFSETFROM:-0400",
       "TZOFFSETTO:-0500", 
       "TZNAME:EST",
-      "DTSTART:20071104T020000",
-      "RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU",
+      "DTSTART:#{base_year}1104#{DST_TRANSITION_TIME}",
+      "RRULE:#{DST_END_RULE}",
       "END:STANDARD",
       "END:VTIMEZONE"
     ]
