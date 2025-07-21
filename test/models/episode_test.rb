@@ -138,4 +138,125 @@ class EpisodeTest < ActiveSupport::TestCase
     assert_includes aired_episodes, past_episode
     assert_not_includes aired_episodes, future_episode
   end
+
+  test "should validate runtime_minutes when present" do
+    @episode.runtime_minutes = -5
+    assert_not @episode.valid?
+    assert_includes @episode.errors[:runtime_minutes], "must be greater than 0"
+
+    @episode.runtime_minutes = 30
+    assert @episode.valid?
+
+    @episode.runtime_minutes = nil
+    assert @episode.valid?
+  end
+
+  test "has_specific_air_time? should return false when air_datetime_utc is nil" do
+    @episode.air_datetime_utc = nil
+    assert_not @episode.has_specific_air_time?
+  end
+
+  test "has_specific_air_time? should return true when air_datetime_utc is present" do
+    @episode.air_datetime_utc = Time.current.utc
+    assert @episode.has_specific_air_time?
+  end
+
+  test "air_time_in_timezone should return nil when air_datetime_utc is nil" do
+    @episode.air_datetime_utc = nil
+    assert_nil @episode.air_time_in_timezone
+  end
+
+  test "air_time_in_timezone should convert to target timezone" do
+    utc_time = Time.parse("2025-07-21 20:00:00 UTC")
+    @episode.air_datetime_utc = utc_time
+    
+    ny_time = @episode.air_time_in_timezone("America/New_York")
+    assert_equal "16:00", ny_time.strftime("%H:%M") # 8 PM UTC = 4 PM EDT
+  end
+
+  test "end_time_in_timezone should return nil when air_datetime_utc is nil" do
+    @episode.air_datetime_utc = nil
+    @episode.runtime_minutes = 30
+    assert_nil @episode.end_time_in_timezone
+  end
+
+  test "end_time_in_timezone should return nil when runtime_minutes is nil" do
+    @episode.air_datetime_utc = Time.current.utc
+    @episode.runtime_minutes = nil
+    assert_nil @episode.end_time_in_timezone
+  end
+
+  test "end_time_in_timezone should calculate end time correctly" do
+    utc_time = Time.parse("2025-07-21 20:00:00 UTC")
+    @episode.air_datetime_utc = utc_time
+    @episode.runtime_minutes = 60
+    
+    end_time = @episode.end_time_in_timezone("America/New_York")
+    assert_equal "17:00", end_time.strftime("%H:%M") # 4 PM + 1 hour = 5 PM
+  end
+
+  test "runtime_duration should return nil when runtime_minutes is nil" do
+    @episode.runtime_minutes = nil
+    assert_nil @episode.runtime_duration
+  end
+
+  test "runtime_duration should return duration object" do
+    @episode.runtime_minutes = 45
+    duration = @episode.runtime_duration
+    assert_equal 45.minutes, duration
+  end
+
+  test "upcoming_with_time scope should filter by air_datetime_utc" do
+    future_time = 1.hour.from_now.utc
+    past_time = 1.hour.ago.utc
+
+    future_episode = Episode.create!(
+      series: @series,
+      title: "Future Episode",
+      season_number: 1,
+      episode_number: 10,
+      air_date: Date.current + 1.day,
+      air_datetime_utc: future_time
+    )
+
+    past_episode = Episode.create!(
+      series: @series,
+      title: "Past Episode",
+      season_number: 1,
+      episode_number: 11,
+      air_date: Date.current - 1.day,
+      air_datetime_utc: past_time
+    )
+
+    upcoming_episodes = Episode.upcoming_with_time
+    assert_includes upcoming_episodes, future_episode
+    assert_not_includes upcoming_episodes, past_episode
+  end
+
+  test "aired_with_time scope should filter by air_datetime_utc" do
+    future_time = 1.hour.from_now.utc
+    past_time = 1.hour.ago.utc
+
+    future_episode = Episode.create!(
+      series: @series,
+      title: "Future Episode",
+      season_number: 1,
+      episode_number: 12,
+      air_date: Date.current + 1.day,
+      air_datetime_utc: future_time
+    )
+
+    past_episode = Episode.create!(
+      series: @series,
+      title: "Past Episode",
+      season_number: 1,
+      episode_number: 13,
+      air_date: Date.current - 1.day,
+      air_datetime_utc: past_time
+    )
+
+    aired_episodes = Episode.aired_with_time
+    assert_includes aired_episodes, past_episode
+    assert_not_includes aired_episodes, future_episode
+  end
 end

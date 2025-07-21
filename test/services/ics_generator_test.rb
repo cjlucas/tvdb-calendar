@@ -124,4 +124,114 @@ class IcsGeneratorTest < ActiveSupport::TestCase
     assert_equal 2, uid_matches.length
     assert_equal uid_matches.uniq.length, uid_matches.length
   end
+
+  test "should include timezone definition" do
+    ics_content = @generator.generate
+
+    assert_includes ics_content, "BEGIN:VTIMEZONE"
+    assert_includes ics_content, "TZID:America/New_York"
+    assert_includes ics_content, "END:VTIMEZONE"
+  end
+
+  test "should generate timed events when air_datetime_utc is present" do
+    # Set air time to 8 PM UTC (4 PM EDT in summer)
+    air_time_utc = Time.parse("2025-07-21 20:00:00 UTC")
+    @episode.update!(
+      air_datetime_utc: air_time_utc,
+      runtime_minutes: 60
+    )
+
+    ics_content = @generator.generate
+
+    # Should use TZID format instead of VALUE=DATE
+    assert_includes ics_content, "DTSTART;TZID=America/New_York:20250721T160000"
+    assert_includes ics_content, "DTEND;TZID=America/New_York:20250721T170000"
+    
+    # Should not include VALUE=DATE format
+    assert_not_includes ics_content, "VALUE=DATE"
+  end
+
+  test "should fall back to all-day event when no air_datetime_utc" do
+    @episode.update!(air_datetime_utc: nil)
+
+    ics_content = @generator.generate
+
+    # Should use VALUE=DATE format
+    date_str = @episode.air_date.strftime("%Y%m%d")
+    assert_includes ics_content, "DTSTART;VALUE=DATE:#{date_str}"
+    assert_includes ics_content, "DTEND;VALUE=DATE:#{date_str}"
+    
+    # Should not include TZID format
+    assert_not_includes ics_content, "TZID=America/New_York"
+  end
+
+  test "should use default duration when runtime_minutes is nil" do
+    air_time_utc = Time.parse("2025-07-21 20:00:00 UTC")
+    @episode.update!(
+      air_datetime_utc: air_time_utc,
+      runtime_minutes: nil
+    )
+
+    ics_content = @generator.generate
+
+    # Should default to 30-minute duration
+    assert_includes ics_content, "DTSTART;TZID=America/New_York:20250721T160000"
+    assert_includes ics_content, "DTEND;TZID=America/New_York:20250721T163000"
+  end
+
+  test "should handle winter timezone (EST) correctly" do
+    # Set air time in winter (EST, UTC-5)
+    air_time_utc = Time.parse("2025-01-15 21:00:00 UTC")
+    @episode.update!(
+      air_datetime_utc: air_time_utc,
+      runtime_minutes: 30,
+      air_date: Date.parse("2025-01-15")
+    )
+
+    ics_content = @generator.generate
+
+    # 9 PM UTC in winter = 4 PM EST
+    assert_includes ics_content, "DTSTART;TZID=America/New_York:20250115T160000"
+    assert_includes ics_content, "DTEND;TZID=America/New_York:20250115T163000"
+  end
+
+  test "should handle mixed episodes with and without air times" do
+    # Episode with specific time
+    timed_episode = Episode.create!(
+      series: @series,
+      title: "Timed Episode",
+      season_number: 1,
+      episode_number: 10,
+      air_date: Date.current + 2.days,
+      air_datetime_utc: Time.parse("2025-07-21 20:00:00 UTC"),
+      runtime_minutes: 45
+    )
+
+    # Episode without specific time (all-day)
+    allday_episode = Episode.create!(
+      series: @series,
+      title: "All Day Episode",
+      season_number: 1,
+      episode_number: 11,
+      air_date: Date.current + 3.days,
+      air_datetime_utc: nil
+    )
+
+    ics_content = @generator.generate
+
+    # Should contain both timed and all-day formats
+    assert_includes ics_content, "DTSTART;TZID=America/New_York:"
+    assert_includes ics_content, "DTSTART;VALUE=DATE:"
+  end
+
+  test "should properly escape timezone info" do
+    air_time_utc = Time.parse("2025-07-21 20:00:00 UTC")
+    @episode.update!(air_datetime_utc: air_time_utc)
+
+    ics_content = @generator.generate
+
+    # Timezone ID should not be escaped
+    assert_includes ics_content, "TZID:America/New_York"
+    assert_not_includes ics_content, "TZID:America\\/New_York"
+  end
 end
