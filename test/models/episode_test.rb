@@ -169,7 +169,7 @@ class EpisodeTest < ActiveSupport::TestCase
   test "air_time_in_timezone should convert to target timezone" do
     utc_time = Time.parse("2025-07-21 20:00:00 UTC")
     @episode.air_datetime_utc = utc_time
-    
+
     ny_time = @episode.air_time_in_timezone("America/New_York")
     assert_equal "16:00", ny_time.strftime("%H:%M") # 8 PM UTC = 4 PM EDT
   end
@@ -190,7 +190,7 @@ class EpisodeTest < ActiveSupport::TestCase
     utc_time = Time.parse("2025-07-21 20:00:00 UTC")
     @episode.air_datetime_utc = utc_time
     @episode.runtime_minutes = 60
-    
+
     end_time = @episode.end_time_in_timezone("America/New_York")
     assert_equal "17:00", end_time.strftime("%H:%M") # 4 PM + 1 hour = 5 PM
   end

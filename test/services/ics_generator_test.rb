@@ -62,8 +62,9 @@ class IcsGeneratorTest < ActiveSupport::TestCase
 
     # Check date format
     date_str = (@episode.air_date).strftime("%Y%m%d")
+    date_end = (@episode.air_date + 1.day).strftime("%Y%m%d")
     assert_includes ics_content, "DTSTART;VALUE=DATE:#{date_str}"
-    assert_includes ics_content, "DTEND;VALUE=DATE:#{date_str}"
+    assert_includes ics_content, "DTEND;VALUE=DATE:#{date_end}"
   end
 
   test "should include IMDB URL when available" do
@@ -146,7 +147,7 @@ class IcsGeneratorTest < ActiveSupport::TestCase
     # Should use TZID format instead of VALUE=DATE
     assert_includes ics_content, "DTSTART;TZID=America/New_York:20250721T160000"
     assert_includes ics_content, "DTEND;TZID=America/New_York:20250721T170000"
-    
+
     # Should not include VALUE=DATE format
     assert_not_includes ics_content, "VALUE=DATE"
   end
@@ -158,9 +159,10 @@ class IcsGeneratorTest < ActiveSupport::TestCase
 
     # Should use VALUE=DATE format
     date_str = @episode.air_date.strftime("%Y%m%d")
+    date_end = (@episode.air_date + 1.day).strftime("%Y%m%d")
     assert_includes ics_content, "DTSTART;VALUE=DATE:#{date_str}"
-    assert_includes ics_content, "DTEND;VALUE=DATE:#{date_str}"
-    
+    assert_includes ics_content, "DTEND;VALUE=DATE:#{date_end}"
+
     # Should not include TZID format
     assert_not_includes ics_content, "TZID=America/New_York"
   end
@@ -180,19 +182,20 @@ class IcsGeneratorTest < ActiveSupport::TestCase
   end
 
   test "should handle winter timezone (EST) correctly" do
-    # Set air time in winter (EST, UTC-5)
-    air_time_utc = Time.parse("2025-01-15 21:00:00 UTC")
+    # Set air time in winter (EST, UTC-5) - use future date
+    future_winter_date = Date.parse("2026-01-15")
+    air_time_utc = Time.parse("2026-01-15 21:00:00 UTC")
     @episode.update!(
       air_datetime_utc: air_time_utc,
       runtime_minutes: 30,
-      air_date: Date.parse("2025-01-15")
+      air_date: future_winter_date
     )
 
     ics_content = @generator.generate
 
     # 9 PM UTC in winter = 4 PM EST
-    assert_includes ics_content, "DTSTART;TZID=America/New_York:20250115T160000"
-    assert_includes ics_content, "DTEND;TZID=America/New_York:20250115T163000"
+    assert_includes ics_content, "DTSTART;TZID=America/New_York:20260115T160000"
+    assert_includes ics_content, "DTEND;TZID=America/New_York:20260115T163000"
   end
 
   test "should handle mixed episodes with and without air times" do
