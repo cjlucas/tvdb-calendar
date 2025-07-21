@@ -23,7 +23,10 @@ class TvdbClient
       @token
     else
       # Check if this is specifically an invalid PIN error
-      if response.code == 401 || response.parsed_response&.dig("message")&.downcase&.include?("pin")
+      if response.code == 401 && (
+        response.parsed_response&.dig("message")&.match?(/\bpin\b/i) ||
+        response.parsed_response&.dig("error")&.match?(/invalid.*pin|pin.*invalid/i)
+      )
         raise InvalidPinError, "PIN Invalid"
       else
         raise "Authentication failed: #{response.parsed_response['message']}"

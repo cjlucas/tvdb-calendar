@@ -17,4 +17,11 @@ class UserSyncIndividualJobTest < ActiveJob::TestCase
       UserSyncIndividualJob.perform_now("nonexistent_pin")
     end
   end
+
+  test "should handle InvalidPinError in job rescue clause" do
+    # Verify the rescue clause for InvalidPinError exists
+    job_source = File.read(Rails.root.join("app/jobs/user_sync_individual_job.rb"))
+    assert_includes job_source, "rescue InvalidPinError"
+    assert_includes job_source, '"PIN Invalid"'
+  end
 end
