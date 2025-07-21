@@ -70,13 +70,13 @@ class EpisodeTest < ActiveSupport::TestCase
   test "episode_code should format correctly with single digits" do
     @episode.season_number = 1
     @episode.episode_number = 5
-    assert_equal "S01E05", @episode.episode_code
+    assert_equal "01x05", @episode.episode_code
   end
 
   test "episode_code should format correctly with double digits" do
     @episode.season_number = 12
     @episode.episode_number = 25
-    assert_equal "S12E25", @episode.episode_code
+    assert_equal "12x25", @episode.episode_code
   end
 
   test "full_title should return series name" do
@@ -91,7 +91,7 @@ class EpisodeTest < ActiveSupport::TestCase
   end
 
   test "location_text should format correctly" do
-    expected = "Test Episode - (S01E05)"
+    expected = "Test Episode - (01x05)"
     assert_equal expected, @episode.location_text
   end
 
