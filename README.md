@@ -32,7 +32,7 @@ A simple Rails application that generates ICS calendar files from your TheTVDB f
 
 3. **Set up environment variables**
    ```bash
-   cp .env.example .env
+   cp .env.example .env.development.local
    ```
    
    Edit `.env` and add your TheTVDB API key:
