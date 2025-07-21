@@ -47,12 +47,12 @@ class IcsGenerator
       # Get air time in New York timezone as specified in the issue
       start_time_ny = episode.air_time_in_timezone("America/New_York")
       end_time_ny = episode.end_time_in_timezone("America/New_York")
-      
+
       if start_time_ny.present?
         # Format as datetime with timezone for ICS
         dtstart = start_time_ny.strftime("%Y%m%dT%H%M%S")
         event << "DTSTART;TZID=America/New_York:#{dtstart}"
-        
+
         if end_time_ny.present?
           dtend = end_time_ny.strftime("%Y%m%dT%H%M%S")
           event << "DTEND;TZID=America/New_York:#{dtend}"
@@ -113,7 +113,7 @@ class IcsGenerator
     # Generate timezone definition using current US DST rules
     # Reference: https://www.timeanddate.com/time/change/usa
     base_year = 2007 # Year current DST rules took effect
-    
+
     [
       "BEGIN:VTIMEZONE",
       "TZID:America/New_York",
@@ -126,7 +126,7 @@ class IcsGenerator
       "END:DAYLIGHT",
       "BEGIN:STANDARD",
       "TZOFFSETFROM:-0400",
-      "TZOFFSETTO:-0500", 
+      "TZOFFSETTO:-0500",
       "TZNAME:EST",
       "DTSTART:#{base_year}1104#{DST_TRANSITION_TIME}",
       "RRULE:#{DST_END_RULE}",
