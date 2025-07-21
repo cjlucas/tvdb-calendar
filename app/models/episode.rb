@@ -11,7 +11,7 @@ class Episode < ApplicationRecord
   scope :aired, -> { where("air_date < ?", Date.current) }
 
   def episode_code
-    "S#{season_number.to_s.rjust(2, '0')}E#{episode_number.to_s.rjust(2, '0')}"
+    "#{season_number.to_s.rjust(2, '0')}x#{episode_number.to_s.rjust(2, '0')}"
   end
 
   def full_title
