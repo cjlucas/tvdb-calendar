@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_21_022800) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_21_030649) do
   create_table "episodes", force: :cascade do |t|
     t.integer "series_id", null: false
     t.string "title", null: false
@@ -31,14 +31,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_022800) do
   end
 
   create_table "series", force: :cascade do |t|
-    t.integer "user_id", null: false
     t.integer "tvdb_id", null: false
     t.string "name", null: false
     t.string "imdb_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["user_id", "tvdb_id"], name: "index_series_on_user_id_and_tvdb_id", unique: true
-    t.index ["user_id"], name: "index_series_on_user_id"
+    t.index ["tvdb_id"], name: "index_series_on_tvdb_id", unique: true
+    t.index ["tvdb_id"], name: "index_series_on_user_id_and_tvdb_id", unique: true
+  end
+
+  create_table "user_series", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "series_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["series_id"], name: "index_user_series_on_series_id"
+    t.index ["user_id", "series_id"], name: "index_user_series_on_user_id_and_series_id", unique: true
+    t.index ["user_id"], name: "index_user_series_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -50,5 +59,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_21_022800) do
   end
 
   add_foreign_key "episodes", "series"
-  add_foreign_key "series", "users"
+  add_foreign_key "user_series", "series"
+  add_foreign_key "user_series", "users"
 end

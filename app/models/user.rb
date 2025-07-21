@@ -1,7 +1,8 @@
 class User < ApplicationRecord
   validates :pin, presence: true, uniqueness: true
 
-  has_many :series, dependent: :destroy
+  has_many :user_series, dependent: :destroy
+  has_many :series, through: :user_series
   has_many :episodes, through: :series
 
   def needs_sync?

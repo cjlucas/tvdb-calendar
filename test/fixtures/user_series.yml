@@ -1,0 +1,14 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  series: one
+
+two:
+  user: two
+  series: two
+
+# Allow user one to also have series two (many-to-many relationship)
+three:
+  user: one
+  series: two

@@ -4,10 +4,10 @@ class EpisodeTest < ActiveSupport::TestCase
   def setup
     @user = User.create!(pin: "episode_test_#{rand(100000..999999)}")
     @series = Series.create!(
-      user: @user,
-      tvdb_id: 123,
+      tvdb_id: rand(100000..999999),
       name: "Test Series"
     )
+    @user.user_series.create!(series: @series)
     @episode = Episode.new(
       series: @series,
       title: "Test Episode",
@@ -62,9 +62,9 @@ class EpisodeTest < ActiveSupport::TestCase
     assert_equal @series, @episode.series
   end
 
-  test "should have user through series" do
-    assert_respond_to @episode, :user
-    assert_equal @user, @episode.user
+  test "should have users through series" do
+    assert_respond_to @episode, :users
+    assert_includes @episode.users, @user
   end
 
   test "episode_code should format correctly with single digits" do
