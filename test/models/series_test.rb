@@ -3,9 +3,9 @@ require "test_helper"
 class SeriesTest < ActiveSupport::TestCase
   def setup
     @user = User.create!(pin: "series_test_#{rand(100000..999999)}")
+    @tvdb_id = rand(100000..999999)
     @series = Series.new(
-      user: @user,
-      tvdb_id: 123,
+      tvdb_id: @tvdb_id,
       name: "Test Series",
       imdb_id: "tt1234567"
     )
@@ -27,35 +27,44 @@ class SeriesTest < ActiveSupport::TestCase
     assert_includes @series.errors[:name], "can't be blank"
   end
 
-  test "should require unique tvdb_id per user" do
+  test "should require unique tvdb_id globally" do
     @series.save!
     duplicate_series = Series.new(
-      user: @user,
-      tvdb_id: 123,
+      tvdb_id: @tvdb_id,
       name: "Another Series"
     )
     assert_not duplicate_series.valid?
     assert_includes duplicate_series.errors[:tvdb_id], "has already been taken"
   end
 
-  test "should allow same tvdb_id for different users" do
+  test "should not allow same tvdb_id for different series" do
     @series.save!
-    other_user = User.create!(pin: "other_series_#{rand(100000..999999)}")
     other_series = Series.new(
-      user: other_user,
-      tvdb_id: 123,
-      name: "Same TVDB ID Different User"
+      tvdb_id: @tvdb_id,
+      name: "Same TVDB ID Different Series"
     )
-    assert other_series.valid?
+    assert_not other_series.valid?
   end
 
-  test "should belong to user" do
-    assert_respond_to @series, :user
-    assert_equal @user, @series.user
+  test "should have many users through user_series" do
+    assert_respond_to @series, :users
+    assert_respond_to @series, :user_series
   end
 
   test "should have many episodes" do
     assert_respond_to @series, :episodes
+  end
+
+  test "should allow multiple users to have same series" do
+    @series.save!
+    @user.user_series.create!(series: @series)
+
+    other_user = User.create!(pin: "other_#{rand(100000..999999)}")
+    other_user.user_series.create!(series: @series)
+
+    assert_includes @series.users, @user
+    assert_includes @series.users, other_user
+    assert_equal 2, @series.users.count
   end
 
   test "imdb_url should return correct URL with imdb_id" do

@@ -67,13 +67,18 @@ class UserSyncService
 
     broadcast_sync_progress(current, total, "Syncing: #{series_name}...")
 
-    # Find or create series record
-    series = @user.series.find_or_initialize_by(tvdb_id: series_id)
+    # Find or create series record (normalized schema)
+    series = Series.find_or_initialize_by(tvdb_id: series_id)
     series.assign_attributes(
       name: series_details["name"],
       imdb_id: series_details["remoteIds"]&.find { |r| r["sourceName"] == "IMDB" }&.dig("id")
     )
     series.save!
+
+    # Associate series with user if not already associated
+    unless @user.series.include?(series)
+      @user.user_series.create!(series: series)
+    end
 
     # Get episodes for this series
     episodes_data = @client.get_series_episodes(series_id)

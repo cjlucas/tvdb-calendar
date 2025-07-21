@@ -1,6 +1,6 @@
 class Episode < ApplicationRecord
   belongs_to :series
-  has_one :user, through: :series
+  has_many :users, through: :series
 
   validates :title, presence: true
   validates :season_number, presence: true, numericality: { greater_than_or_equal_to: 0 }

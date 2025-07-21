@@ -1,8 +1,9 @@
 class Series < ApplicationRecord
-  belongs_to :user
+  has_many :user_series, dependent: :destroy
+  has_many :users, through: :user_series
   has_many :episodes, dependent: :destroy
 
-  validates :tvdb_id, presence: true, uniqueness: { scope: :user_id }
+  validates :tvdb_id, presence: true, uniqueness: true
   validates :name, presence: true
 
   def imdb_url

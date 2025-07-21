@@ -4,11 +4,11 @@ class IcsGeneratorTest < ActiveSupport::TestCase
   def setup
     @user = User.create!(pin: "ics_test_#{rand(100000..999999)}")
     @series = Series.create!(
-      user: @user,
-      tvdb_id: 123,
+      tvdb_id: rand(100000..999999),
       name: "Test Series",
       imdb_id: "tt1234567"
     )
+    @user.user_series.create!(series: @series)
     @episode = Episode.create!(
       series: @series,
       title: "Test Episode",
