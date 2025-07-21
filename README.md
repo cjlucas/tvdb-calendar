@@ -74,7 +74,6 @@ A simple Rails application that generates ICS calendar files from your TheTVDB f
 3. **Subscribe to the calendar**
    - **Google Calendar**: Add calendar → From URL → paste the link
    - **Apple Calendar**: File → New Calendar Subscription → paste the link
-   - **Outlook**: Add calendar → From internet → paste the link
 
 ## Testing
 
