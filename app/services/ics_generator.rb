@@ -10,7 +10,7 @@ class IcsGenerator
       "PRODID:-//TVDB Calendar//NONSGML v1.0//EN",
       "CALSCALE:GREGORIAN",
       "METHOD:PUBLISH",
-      "X-WR-CALNAME:TV Shows - #{@user.pin}",
+      "X-WR-CALNAME:TV Shows",
       "X-WR-CALDESC:Upcoming episodes for your favorite TV shows from TheTVDB"
     ]
 
