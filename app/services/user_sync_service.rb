@@ -1,4 +1,25 @@
 class UserSyncService
+  # Network timezone mappings for common TV networks
+  # Based on typical broadcast timezones and network headquarters
+  # Update this hash when adding support for new networks or regions
+  NETWORK_TIMEZONE_MAPPINGS = {
+    # Premium Cable Networks (East Coast based)
+    %w[HBO SHOWTIME STARZ EPIX] => "America/New_York",
+    
+    # Cable Networks (East Coast based)
+    %w[MTV VH1 FX AMC TNT TBS USA SYFY] => "America/New_York",
+    ["COMEDY CENTRAL"] => "America/New_York",
+    
+    # Major Broadcast Networks (Eastern time reference)
+    %w[FOX ABC CBS NBC CW PBS] => "America/New_York",
+    
+    # Children's Networks
+    %w[DISNEY NICKELODEON CARTOON] => "America/New_York",
+    
+    # Streaming Services (typically use Eastern for premieres)
+    %w[NETFLIX HULU AMAZON PRIME] => "America/New_York"
+  }.freeze
+
   def initialize(user)
     @user = user
     @client = TvdbClient.new
@@ -188,16 +209,17 @@ class UserSyncService
   end
 
   def guess_timezone_from_network(network)
-    # Map common networks to their typical timezones
-    case network.to_s.upcase
-    when /HBO|SHOWTIME|MTV|VH1|COMEDY CENTRAL|FX|AMC/
-      "America/New_York"  # East Coast
-    when /FOX|ABC|CBS|NBC|CW/
-      "America/New_York"  # Major networks typically reference Eastern
-    when /DISNEY|NICKELODEON/
-      "America/New_York"
-    else
-      nil # Let caller use default
+    return nil if network.blank?
+    
+    # Find matching timezone from network mappings
+    network_upper = network.to_s.upcase
+    
+    NETWORK_TIMEZONE_MAPPINGS.each do |networks, timezone|
+      if networks.any? { |net| network_upper.include?(net) }
+        return timezone
+      end
     end
+    
+    nil # Let caller use default
   end
 end
