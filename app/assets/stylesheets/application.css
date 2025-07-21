@@ -137,6 +137,17 @@ body {
   background: #38a169;
 }
 
+.btn-download {
+  background: #3182ce;
+  color: white;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.btn-download:hover {
+  background: #2c5282;
+}
+
 .form-actions {
   text-align: center;
 }

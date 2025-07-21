@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { createConsumer } from "@rails/actioncable"
 
 export default class extends Controller {
-  static targets = ["input", "submit", "progress", "progressFill", "progressText", "progressCounter", "progressPercentage", "result", "error", "calendarUrl", "copyButton", "errorMessage"]
+  static targets = ["input", "submit", "progress", "progressFill", "progressText", "progressCounter", "progressPercentage", "result", "error", "calendarUrl", "copyButton", "downloadButton", "errorMessage"]
   static outlets = []
 
   connect() {
@@ -211,6 +211,54 @@ export default class extends Controller {
         }
       } catch (err) {
         console.error("Failed to copy text: ", err)
+      }
+    }
+  }
+
+  async download(event) {
+    event.preventDefault()
+    if (this.hasCalendarUrlTarget && this.hasDownloadButtonTarget) {
+      const calendarUrl = this.calendarUrlTarget.value
+      if (!calendarUrl) return
+
+      try {
+        const originalText = this.downloadButtonTarget.textContent
+        this.downloadButtonTarget.textContent = "Downloading..."
+        
+        // Fetch the ICS file content
+        const response = await fetch(calendarUrl)
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
+        const icsContent = await response.text()
+        
+        // Create a blob and download link
+        const blob = new Blob([icsContent], { type: 'text/calendar' })
+        const downloadUrl = window.URL.createObjectURL(blob)
+        
+        // Create temporary link and trigger download
+        const link = document.createElement('a')
+        link.href = downloadUrl
+        link.download = 'tvdb-calendar.ics'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        
+        // Clean up the object URL
+        window.URL.revokeObjectURL(downloadUrl)
+        
+        this.downloadButtonTarget.textContent = "Downloaded!"
+        setTimeout(() => {
+          this.downloadButtonTarget.textContent = originalText
+        }, 2000)
+        
+      } catch (err) {
+        console.error("Failed to download calendar: ", err)
+        this.downloadButtonTarget.textContent = "Error"
+        setTimeout(() => {
+          this.downloadButtonTarget.textContent = "Download"
+        }, 2000)
       }
     }
   }
