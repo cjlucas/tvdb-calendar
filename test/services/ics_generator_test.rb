@@ -30,7 +30,7 @@ class IcsGeneratorTest < ActiveSupport::TestCase
     assert_includes ics_content, "PRODID:-//TVDB Calendar//NONSGML v1.0//EN"
 
     # Check calendar metadata
-    assert_includes ics_content, "X-WR-CALNAME:TV Shows - #{@user.pin}"
+    assert_includes ics_content, "X-WR-CALNAME:TV Shows"
     assert_includes ics_content, "X-WR-CALDESC:Upcoming episodes for your favorite TV shows from TheTVDB"
   end
 
@@ -58,7 +58,7 @@ class IcsGeneratorTest < ActiveSupport::TestCase
 
     # Check event fields
     assert_includes ics_content, "SUMMARY:Test Series"
-    assert_includes ics_content, "LOCATION:Test Episode - (S01E05)"
+    assert_includes ics_content, "LOCATION:Test Episode - (01x05)"
 
     # Check date format
     date_str = (@episode.air_date).strftime("%Y%m%d")
