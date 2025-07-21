@@ -37,8 +37,7 @@ The application is automatically built and published to GitHub Container Registr
 
 **Available tags:**
 - `latest` - Latest stable release
-- `v1.0.0` - Specific version tags
-- `1.0` - Major.minor version tags
+- `v1.1` - Specific version tags (matches git tags)
 
 ## Deployment Options
 

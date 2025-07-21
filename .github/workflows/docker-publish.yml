@@ -39,9 +39,6 @@ jobs:
           tags: |
             type=ref,event=tag
             type=raw,value=latest,enable={{is_default_branch}}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -65,6 +62,8 @@ jobs:
           echo '${{ steps.meta.outputs.tags }}' | while IFS= read -r tag; do
             echo "- \`$tag\`" >> $GITHUB_STEP_SUMMARY
           done
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version format:** Simple v1.1, v1.2, etc. (no semantic versioning)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Pull command:**" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
