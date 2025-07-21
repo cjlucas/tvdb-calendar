@@ -118,8 +118,8 @@ class UserSyncService
         source_timezone = extract_timezone(episode_data, series_details) || "America/New_York"
         
         # Parse in the source timezone and convert to UTC
-        Time.zone = source_timezone
-        local_time = Time.zone.parse(time_str)
+        source_tz = Time.find_zone(source_timezone)
+        local_time = source_tz.parse(time_str)
         return local_time.utc if local_time
       rescue => e
         Rails.logger.warn "UserSyncService: Failed to parse air time '#{air_time}' for episode: #{e.message}"
@@ -134,8 +134,8 @@ class UserSyncService
         base_date = Date.parse(air_date)
         source_timezone = extract_timezone(episode_data, series_details) || "America/New_York"
         
-        Time.zone = source_timezone
-        default_datetime = Time.zone.parse("#{base_date} #{default_air_time}")
+        source_tz = Time.find_zone(source_timezone)
+        default_datetime = source_tz.parse("#{base_date} #{default_air_time}")
         return default_datetime.utc if default_datetime
       rescue => e
         Rails.logger.warn "UserSyncService: Failed to parse default air time '#{default_air_time}': #{e.message}"
