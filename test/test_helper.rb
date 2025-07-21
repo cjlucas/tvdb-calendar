@@ -2,6 +2,9 @@ ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
 
+# Load InvalidPinError for tests
+require_relative "../app/services/tvdb_client"
+
 module ActiveSupport
   class TestCase
     # Run tests in parallel with specified workers

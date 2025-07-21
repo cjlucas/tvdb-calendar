@@ -48,4 +48,9 @@ class TvdbClientTest < ActiveSupport::TestCase
       @client.get_series_episodes(123)
     end
   end
+
+  test "should define InvalidPinError exception class" do
+    assert_not_nil InvalidPinError
+    assert InvalidPinError < StandardError
+  end
 end

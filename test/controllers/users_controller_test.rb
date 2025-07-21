@@ -61,4 +61,9 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal "error", response_data["status"]
   end
+
+  test "should define InvalidPinError exception class" do
+    assert_not_nil InvalidPinError
+    assert InvalidPinError < StandardError
+  end
 end
