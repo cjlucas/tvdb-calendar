@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_20_211037) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_21_022800) do
   create_table "episodes", force: :cascade do |t|
     t.integer "series_id", null: false
     t.string "title", null: false
@@ -20,7 +20,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_20_211037) do
     t.boolean "is_season_finale", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "air_time"
+    t.integer "runtime_minutes"
+    t.string "original_timezone"
+    t.datetime "air_datetime_utc"
     t.index ["air_date"], name: "index_episodes_on_air_date"
+    t.index ["air_datetime_utc"], name: "index_episodes_on_air_datetime_utc"
     t.index ["series_id", "season_number", "episode_number"], name: "idx_on_series_id_season_number_episode_number_ac8d2e3ce3", unique: true
     t.index ["series_id"], name: "index_episodes_on_series_id"
   end
