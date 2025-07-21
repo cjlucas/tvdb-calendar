@@ -14,6 +14,9 @@ class IcsGenerator
       "X-WR-CALDESC:Upcoming episodes for your favorite TV shows from TheTVDB"
     ]
 
+    # Add timezone definition for New York timezone
+    calendar.concat(new_york_timezone_definition)
+
     episodes = @user.episodes.upcoming.includes(:series).order(:air_date)
 
     episodes.each do |episode|
@@ -30,22 +33,52 @@ class IcsGenerator
     # Generate unique ID for the event
     uid = "episode-#{episode.id}-#{episode.series.tvdb_id}@tvdbcalendar.com"
 
-    # Format dates for ICS (YYYYMMDD)
-    date_start = episode.air_date.strftime("%Y%m%d")
-    date_end = episode.air_date.strftime("%Y%m%d")
-
     # Create timestamp for when this event was created/modified
     dtstamp = Time.current.utc.strftime("%Y%m%dT%H%M%SZ")
 
     event = [
       "BEGIN:VEVENT",
       "UID:#{uid}",
-      "DTSTAMP:#{dtstamp}",
-      "DTSTART;VALUE=DATE:#{date_start}",
-      "DTEND;VALUE=DATE:#{date_end}",
-      "SUMMARY:#{escape_ics_text(episode.full_title)}",
-      "LOCATION:#{escape_ics_text(episode.location_text)}"
+      "DTSTAMP:#{dtstamp}"
     ]
+
+    # Use specific air time if available, otherwise fall back to all-day event
+    if episode.has_specific_air_time?
+      # Get air time in New York timezone as specified in the issue
+      start_time_ny = episode.air_time_in_timezone("America/New_York")
+      end_time_ny = episode.end_time_in_timezone("America/New_York")
+      
+      if start_time_ny.present?
+        # Format as datetime with timezone for ICS
+        dtstart = start_time_ny.strftime("%Y%m%dT%H%M%S")
+        event << "DTSTART;TZID=America/New_York:#{dtstart}"
+        
+        if end_time_ny.present?
+          dtend = end_time_ny.strftime("%Y%m%dT%H%M%S")
+          event << "DTEND;TZID=America/New_York:#{dtend}"
+        else
+          # Default 30-minute duration if no runtime specified
+          default_end = start_time_ny + 30.minutes
+          dtend = default_end.strftime("%Y%m%dT%H%M%S")
+          event << "DTEND;TZID=America/New_York:#{dtend}"
+        end
+      else
+        # Fallback to all-day if time parsing failed
+        date_start = episode.air_date.strftime("%Y%m%d")
+        date_end = episode.air_date.strftime("%Y%m%d")
+        event << "DTSTART;VALUE=DATE:#{date_start}"
+        event << "DTEND;VALUE=DATE:#{date_end}"
+      end
+    else
+      # All-day event (current behavior)
+      date_start = episode.air_date.strftime("%Y%m%d")
+      date_end = episode.air_date.strftime("%Y%m%d")
+      event << "DTSTART;VALUE=DATE:#{date_start}"
+      event << "DTEND;VALUE=DATE:#{date_end}"
+    end
+
+    event << "SUMMARY:#{escape_ics_text(episode.full_title)}"
+    event << "LOCATION:#{escape_ics_text(episode.location_text)}"
 
     # Add description with IMDB link if available
     if episode.series.imdb_url
@@ -65,5 +98,27 @@ class IcsGenerator
     text.gsub(/[\\,;"]/) { |match| "\\#{match}" }
         .gsub(/\n/, "\\n")
         .gsub(/\r/, "")
+  end
+
+  def new_york_timezone_definition
+    [
+      "BEGIN:VTIMEZONE",
+      "TZID:America/New_York",
+      "BEGIN:DAYLIGHT",
+      "TZOFFSETFROM:-0500",
+      "TZOFFSETTO:-0400",
+      "TZNAME:EDT",
+      "DTSTART:20070311T020000",
+      "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU",
+      "END:DAYLIGHT",
+      "BEGIN:STANDARD",
+      "TZOFFSETFROM:-0400",
+      "TZOFFSETTO:-0500", 
+      "TZNAME:EST",
+      "DTSTART:20071104T020000",
+      "RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU",
+      "END:STANDARD",
+      "END:VTIMEZONE"
+    ]
   end
 end
