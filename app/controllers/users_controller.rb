@@ -44,6 +44,12 @@ class UsersController < ApplicationController
         }, status: :unprocessable_entity
       end
     end
+  rescue InvalidPinError => e
+    Rails.logger.error "UsersController#create: Invalid PIN: #{e.message}"
+    render json: {
+      status: "error",
+      message: "PIN Invalid"
+    }, status: :unprocessable_entity
   rescue => e
     Rails.logger.error "UsersController#create: Exception: #{e.message}"
     Rails.logger.error e.backtrace.join("\n")

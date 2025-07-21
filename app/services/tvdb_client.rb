@@ -1,3 +1,5 @@
+class InvalidPinError < StandardError; end
+
 class TvdbClient
   include HTTParty
   base_uri "https://api4.thetvdb.com/v4"
@@ -20,7 +22,12 @@ class TvdbClient
       @token = response.parsed_response["data"]["token"]
       @token
     else
-      raise "Authentication failed: #{response.parsed_response['message']}"
+      # Check if this is specifically an invalid PIN error
+      if response.code == 401 || response.parsed_response&.dig("message")&.downcase&.include?("pin")
+        raise InvalidPinError, "PIN Invalid"
+      else
+        raise "Authentication failed: #{response.parsed_response['message']}"
+      end
     end
   end
 
