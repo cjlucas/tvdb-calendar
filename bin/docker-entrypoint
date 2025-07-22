@@ -11,6 +11,7 @@ if [ -n "${RAILS_MASTER_KEY}" ] && [ ! -f config/master.key ]; then
     echo "Creating master.key from RAILS_MASTER_KEY environment variable"
     echo "${RAILS_MASTER_KEY}" > config/master.key
     chmod 600 config/master.key
+    chown rails:rails config/master.key
 fi
 
 # If running the rails server then create or migrate existing database
