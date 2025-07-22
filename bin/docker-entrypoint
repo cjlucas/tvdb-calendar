@@ -6,13 +6,6 @@ if [ -z "${LD_PRELOAD+x}" ]; then
     export LD_PRELOAD
 fi
 
-# Create master.key file from environment variable if provided
-if [ -n "${RAILS_MASTER_KEY}" ] && [ ! -f config/master.key ]; then
-    echo "Creating master.key from RAILS_MASTER_KEY environment variable"
-    echo "${RAILS_MASTER_KEY}" > config/master.key
-    chmod 600 config/master.key
-fi
-
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare
