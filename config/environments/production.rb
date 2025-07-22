@@ -79,6 +79,9 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
 
+  # Use environment variable for secret key base instead of encrypted credentials
+  config.secret_key_base = ENV["SECRET_KEY_BASE"]
+
   # Enable DNS rebinding protection and other `Host` header attacks.
   # config.hosts = [
   #   "example.com",     # Allow requests from example.com

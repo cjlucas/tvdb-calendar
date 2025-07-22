@@ -42,6 +42,23 @@ rails server
 3. Copy the generated calendar URL
 4. Add to your calendar app (Google Calendar, Apple Calendar, etc.)
 
+## Production Deployment
+
+For production deployment using Docker, see [PRODUCTION.md](PRODUCTION.md).
+
+**Quick Docker deployment:**
+```bash
+docker run -d \
+  -p 3000:80 \
+  -e SECRET_KEY_BASE=your_secret_key_base \
+  -e TVDB_API_KEY=your_tvdb_api_key \
+  -e DATABASE_HOST=your_postgres_host \
+  -e DATABASE_PORT=5432 \
+  -e DATABASE_USERNAME=your_postgres_user \
+  -e DATABASE_PASSWORD=your_postgres_password \
+  ghcr.io/cjlucas/tvdb-calendar:latest
+```
+
 ## Testing
 
 ```bash
