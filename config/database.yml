@@ -28,36 +28,36 @@ test:
   database: storage/test.sqlite3
 
 
-# Production uses PostgreSQL with required environment variables for connection
+# Production uses PostgreSQL with environment variables (with defaults for development)
 production:
   primary:
     <<: *postgresql
     database: tvdb_calendar_production
-    username: <%= ENV.fetch("DATABASE_USERNAME") %>
-    password: <%= ENV.fetch("DATABASE_PASSWORD") %>
-    host: <%= ENV.fetch("DATABASE_HOST") %>
-    port: <%= ENV.fetch("DATABASE_PORT") %>
+    username: <%= ENV.fetch("DATABASE_USERNAME", "tvdbcalendar") %>
+    password: <%= ENV.fetch("DATABASE_PASSWORD", "tvdbcalendar") %>
+    host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+    port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
   cache:
     <<: *postgresql
     database: tvdb_calendar_cache_production
-    username: <%= ENV.fetch("DATABASE_USERNAME") %>
-    password: <%= ENV.fetch("DATABASE_PASSWORD") %>
-    host: <%= ENV.fetch("DATABASE_HOST") %>
-    port: <%= ENV.fetch("DATABASE_PORT") %>
+    username: <%= ENV.fetch("DATABASE_USERNAME", "tvdbcalendar") %>
+    password: <%= ENV.fetch("DATABASE_PASSWORD", "tvdbcalendar") %>
+    host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+    port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
     migrations_paths: db/cache_migrate
   queue:
     <<: *postgresql
     database: tvdb_calendar_queue_production
-    username: <%= ENV.fetch("DATABASE_USERNAME") %>
-    password: <%= ENV.fetch("DATABASE_PASSWORD") %>
-    host: <%= ENV.fetch("DATABASE_HOST") %>
-    port: <%= ENV.fetch("DATABASE_PORT") %>
+    username: <%= ENV.fetch("DATABASE_USERNAME", "tvdbcalendar") %>
+    password: <%= ENV.fetch("DATABASE_PASSWORD", "tvdbcalendar") %>
+    host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+    port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
     migrations_paths: db/queue_migrate
   cable:
     <<: *postgresql
     database: tvdb_calendar_cable_production
-    username: <%= ENV.fetch("DATABASE_USERNAME") %>
-    password: <%= ENV.fetch("DATABASE_PASSWORD") %>
-    host: <%= ENV.fetch("DATABASE_HOST") %>
-    port: <%= ENV.fetch("DATABASE_PORT") %>
+    username: <%= ENV.fetch("DATABASE_USERNAME", "tvdbcalendar") %>
+    password: <%= ENV.fetch("DATABASE_PASSWORD", "tvdbcalendar") %>
+    host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+    port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
     migrations_paths: db/cable_migrate

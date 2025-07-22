@@ -29,11 +29,13 @@ Your TheTVDB API key for accessing the TVDB API.
 
 ### 3. PostgreSQL Database Configuration
 
-**Required:**
-- `DATABASE_HOST` - PostgreSQL host (e.g., `localhost`, `postgres.example.com`)
-- `DATABASE_PORT` - PostgreSQL port (e.g., `5432`)
-- `DATABASE_USERNAME` - PostgreSQL username
-- `DATABASE_PASSWORD` - PostgreSQL password
+**Recommended for production (with development defaults):**
+- `DATABASE_HOST` - PostgreSQL host (default: `localhost`)
+- `DATABASE_PORT` - PostgreSQL port (default: `5432`)
+- `DATABASE_USERNAME` - PostgreSQL username (default: `tvdbcalendar`)
+- `DATABASE_PASSWORD` - PostgreSQL password (default: `tvdbcalendar`)
+
+**Note:** While defaults are provided for development/testing, you should explicitly set these for production deployment.
 
 The application will create and use these specific database names:
 - `tvdb_calendar_production` - Main application data
@@ -245,7 +247,8 @@ The application includes built-in Rails performance monitoring. Access logs prov
 
 **Database connection errors:**
 - Verify PostgreSQL is running and accessible
-- Ensure all required database environment variables are set: `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`
+- For production, set database environment variables: `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`
+- Development defaults: host=localhost, port=5432, username=tvdbcalendar, password=tvdbcalendar
 - The application automatically runs `rails db:prepare` on startup
 - Ensure the PostgreSQL user has permissions to create databases or manually create:
   - `tvdb_calendar_production`

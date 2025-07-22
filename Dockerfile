@@ -45,13 +45,8 @@ COPY . .
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
 
-# Precompiling assets for production without requiring database or secret key base
-RUN SECRET_KEY_BASE=dummy_key_for_asset_precompilation \
-    DATABASE_HOST=localhost \
-    DATABASE_PORT=5432 \
-    DATABASE_USERNAME=dummy \
-    DATABASE_PASSWORD=dummy \
-    ./bin/rails assets:precompile
+# Precompiling assets for production without requiring secret key base
+RUN SECRET_KEY_BASE=dummy_key_for_asset_precompilation ./bin/rails assets:precompile
 
 
 
