@@ -27,7 +27,21 @@ Your TheTVDB API key for accessing the TVDB API.
 2. Go to Account → API Access
 3. Create a new API key
 
-### 3. Optional Environment Variables
+### 3. PostgreSQL Database Configuration
+
+**Required:**
+- `DATABASE_HOST` - PostgreSQL host (e.g., `localhost`, `postgres.example.com`)
+- `DATABASE_PORT` - PostgreSQL port (e.g., `5432`)
+- `DATABASE_USERNAME` - PostgreSQL username
+- `DATABASE_PASSWORD` - PostgreSQL password
+
+The application will create and use these specific database names:
+- `tvdb_calendar_production` - Main application data
+- `tvdb_calendar_cache_production` - Cache storage
+- `tvdb_calendar_queue_production` - Background job queue
+- `tvdb_calendar_cable_production` - WebSocket connections
+
+### 4. Optional Environment Variables
 - `RAILS_LOG_LEVEL`: Set logging level (default: `info`, options: `debug`, `info`, `warn`, `error`)
 - `RAILS_MAX_THREADS`: Maximum number of threads (default: `5`)
 
@@ -48,7 +62,10 @@ docker run -d \
   -p 3000:80 \
   -e SECRET_KEY_BASE=your_secret_key_base_here \
   -e TVDB_API_KEY=your_tvdb_api_key_here \
-  -v tvdb_calendar_data:/rails/storage \
+  -e DATABASE_HOST=your_postgres_host \
+  -e DATABASE_PORT=5432 \
+  -e DATABASE_USERNAME=your_postgres_user \
+  -e DATABASE_PASSWORD=your_postgres_password \
   --name tvdb-calendar \
   ghcr.io/cjlucas/tvdb-calendar:latest
 ```
@@ -61,6 +78,21 @@ Create a `docker-compose.yml` file:
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: tvdb_calendar
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: tvdb_calendar_production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tvdb_calendar"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   app:
     image: ghcr.io/cjlucas/tvdb-calendar:latest
     ports:
@@ -68,9 +100,14 @@ services:
     environment:
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - TVDB_API_KEY=${TVDB_API_KEY}
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=tvdb_calendar
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - RAILS_LOG_LEVEL=info
-    volumes:
-      - app_storage:/rails/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80/up"]
@@ -79,13 +116,14 @@ services:
       retries: 3
 
 volumes:
-  app_storage:
+  postgres_data:
 ```
 
 Create a `.env` file:
 ```bash
 SECRET_KEY_BASE=your_secret_key_base_here
 TVDB_API_KEY=your_tvdb_api_key_here
+DATABASE_PASSWORD=your_postgres_password_here
 ```
 
 Deploy:
@@ -169,13 +207,13 @@ The application provides a health check endpoint at `/up` that returns:
 
 ## Storage
 
-The application uses SQLite databases stored in `/rails/storage/`:
-- `production.sqlite3` - Main application database
-- `production_cache.sqlite3` - Cache storage
-- `production_queue.sqlite3` - Background job queue
-- `production_cable.sqlite3` - WebSocket connections
+The application uses PostgreSQL for all data storage:
+- **Main database**: Application data (users, favorites, etc.)
+- **Cache database**: Rails cache storage 
+- **Queue database**: Background job queue
+- **Cable database**: WebSocket connections
 
-**Important:** Mount the `/rails/storage` directory as a persistent volume to retain data between container restarts.
+**Important:** Ensure your PostgreSQL instance has persistent storage and regular backups configured.
 
 ## Monitoring
 
@@ -202,11 +240,18 @@ The application includes built-in Rails performance monitoring. Access logs prov
 **Container won't start:**
 - Check that `SECRET_KEY_BASE` is set correctly
 - Verify `TVDB_API_KEY` is valid
+- Ensure `DATABASE_PASSWORD` is set and PostgreSQL is accessible
 - Check container logs: `docker logs tvdb-calendar`
 
-**Database migration errors:**
+**Database connection errors:**
+- Verify PostgreSQL is running and accessible
+- Ensure all required database environment variables are set: `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`
 - The application automatically runs `rails db:prepare` on startup
-- If you need to reset the database, delete the storage volume
+- Ensure the PostgreSQL user has permissions to create databases or manually create:
+  - `tvdb_calendar_production`
+  - `tvdb_calendar_cache_production` 
+  - `tvdb_calendar_queue_production`
+  - `tvdb_calendar_cable_production`
 
 **API errors:**
 - Verify your TVDB API key is active and valid
@@ -221,12 +266,18 @@ For issues related to:
 
 ## Backup
 
-Regular backups of the `/rails/storage` directory are recommended:
+Regular backups of your PostgreSQL databases are recommended:
 
 ```bash
-# Backup
-docker run --rm -v tvdb_calendar_data:/data -v $(pwd):/backup alpine tar czf /backup/tvdb-calendar-backup-$(date +%Y%m%d).tar.gz /data
+# Backup all databases
+pg_dump -h your_postgres_host -U postgres tvdb_calendar_production > backup-$(date +%Y%m%d)-main.sql
+pg_dump -h your_postgres_host -U postgres tvdb_calendar_cache_production > backup-$(date +%Y%m%d)-cache.sql
+pg_dump -h your_postgres_host -U postgres tvdb_calendar_queue_production > backup-$(date +%Y%m%d)-queue.sql
+pg_dump -h your_postgres_host -U postgres tvdb_calendar_cable_production > backup-$(date +%Y%m%d)-cable.sql
 
-# Restore
-docker run --rm -v tvdb_calendar_data:/data -v $(pwd):/backup alpine tar xzf /backup/tvdb-calendar-backup-YYYYMMDD.tar.gz -C /
+# Restore databases
+psql -h your_postgres_host -U postgres tvdb_calendar_production < backup-YYYYMMDD-main.sql
+psql -h your_postgres_host -U postgres tvdb_calendar_cache_production < backup-YYYYMMDD-cache.sql
+psql -h your_postgres_host -U postgres tvdb_calendar_queue_production < backup-YYYYMMDD-queue.sql
+psql -h your_postgres_host -U postgres tvdb_calendar_cable_production < backup-YYYYMMDD-cable.sql
 ```

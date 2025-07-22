@@ -52,7 +52,10 @@ docker run -d \
   -p 3000:80 \
   -e SECRET_KEY_BASE=your_secret_key_base \
   -e TVDB_API_KEY=your_tvdb_api_key \
-  -v tvdb_calendar_data:/rails/storage \
+  -e DATABASE_HOST=your_postgres_host \
+  -e DATABASE_PORT=5432 \
+  -e DATABASE_USERNAME=your_postgres_user \
+  -e DATABASE_PASSWORD=your_postgres_password \
   ghcr.io/cjlucas/tvdb-calendar:latest
 ```
 
