@@ -42,3 +42,5 @@ swarm.log
 
 # Claude Code local memory
 CLAUDE.local.md
+
+/config/credentials/production.key
