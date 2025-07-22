@@ -6,17 +6,17 @@ This guide covers deploying the TVDB Calendar service to production using Docker
 
 - Docker runtime environment
 - TheTVDB API key ([get one here](https://thetvdb.com/dashboard))
-- Rails master key for production (see below)
+- Secret key base for production (see below)
 
 ## Required Environment Variables
 
-### 1. RAILS_MASTER_KEY
-Used for decrypting Rails credentials and securing sessions.
+### 1. SECRET_KEY_BASE
+Used for securing sessions, cookies, and other cryptographic operations.
 
-**Generate a master key:**
+**Generate a secret key base:**
 ```bash
-# Generate a new master key for production
-openssl rand -hex 32
+# Generate a new secret key base for production
+rails secret
 ```
 
 ### 2. TVDB_API_KEY
@@ -46,7 +46,7 @@ The application is automatically built and published to GitHub Container Registr
 ```bash
 docker run -d \
   -p 3000:80 \
-  -e RAILS_MASTER_KEY=your_rails_master_key_here \
+  -e SECRET_KEY_BASE=your_secret_key_base_here \
   -e TVDB_API_KEY=your_tvdb_api_key_here \
   -v tvdb_calendar_data:/rails/storage \
   --name tvdb-calendar \
@@ -66,7 +66,7 @@ services:
     ports:
       - "3000:80"
     environment:
-      - RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - TVDB_API_KEY=${TVDB_API_KEY}
       - RAILS_LOG_LEVEL=info
     volumes:
@@ -84,7 +84,7 @@ volumes:
 
 Create a `.env` file:
 ```bash
-RAILS_MASTER_KEY=your_rails_master_key_here
+SECRET_KEY_BASE=your_secret_key_base_here
 TVDB_API_KEY=your_tvdb_api_key_here
 ```
 
@@ -105,7 +105,7 @@ metadata:
   name: tvdb-calendar-secrets
 type: Opaque
 data:
-  rails-master-key: <base64-encoded-master-key>
+  secret-key-base: <base64-encoded-secret-key-base>
   tvdb-api-key: <base64-encoded-api-key>
 
 ---
@@ -130,11 +130,11 @@ spec:
         ports:
         - containerPort: 80
         env:
-        - name: RAILS_MASTER_KEY
+        - name: SECRET_KEY_BASE
           valueFrom:
             secretKeyRef:
               name: tvdb-calendar-secrets
-              key: rails-master-key
+              key: secret-key-base
         - name: TVDB_API_KEY
           valueFrom:
             secretKeyRef:
@@ -200,7 +200,7 @@ The application includes built-in Rails performance monitoring. Access logs prov
 ### Common Issues
 
 **Container won't start:**
-- Check that `RAILS_MASTER_KEY` is set correctly
+- Check that `SECRET_KEY_BASE` is set correctly
 - Verify `TVDB_API_KEY` is valid
 - Check container logs: `docker logs tvdb-calendar`
 

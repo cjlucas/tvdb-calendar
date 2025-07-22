@@ -50,7 +50,7 @@ For production deployment using Docker, see [PRODUCTION.md](PRODUCTION.md).
 ```bash
 docker run -d \
   -p 3000:80 \
-  -e RAILS_MASTER_KEY=your_rails_master_key \
+  -e SECRET_KEY_BASE=your_secret_key_base \
   -e TVDB_API_KEY=your_tvdb_api_key \
   -v tvdb_calendar_data:/rails/storage \
   ghcr.io/cjlucas/tvdb-calendar:latest
