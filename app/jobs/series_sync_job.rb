@@ -22,14 +22,6 @@ class SeriesSyncJob < ApplicationJob
   def sync_series_data(series)
     client = TvdbClient.new
 
-    # Use a system-level authentication approach
-    # Since this is a background job, we need to authenticate without a user PIN
-    # We'll need to get any valid user PIN to authenticate
-    sample_user = User.where.not(pin: nil).first
-    return unless sample_user
-
-    client.authenticate(sample_user.pin)
-
     # Get updated series details
     series_details = client.get_series_details(series.tvdb_id)
 
