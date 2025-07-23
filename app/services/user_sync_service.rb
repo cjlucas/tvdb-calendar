@@ -80,8 +80,19 @@ class UserSyncService
         last_synced_at: Time.current
       )
     else
-      # For existing series, just show progress without syncing series data
-      broadcast_sync_progress(current, total, "Syncing episodes for: #{series.name}...")
+      # For existing series, check if it needs sync (series + episodes)
+      if series.needs_sync?
+        broadcast_sync_progress(current, total, "Syncing series: #{series.name}...")
+      else
+        broadcast_sync_progress(current, total, "Skipping recent sync: #{series.name}")
+        # Just ensure user association exists and skip all syncing
+        begin
+          @user.user_series.find_or_create_by!(series: series)
+        rescue ActiveRecord::RecordNotUnique
+          # Association already exists, continue
+        end
+        return
+      end
     end
 
     # Associate series with user (handles race conditions gracefully)
@@ -91,7 +102,7 @@ class UserSyncService
       # Association already exists, continue
     end
 
-    # Get episodes for this series
+    # Get episodes for this series (only if new series or needs sync)
     episodes_data = @client.get_series_episodes(series_id)
 
     # For existing series, we may need series details for episode processing
@@ -125,7 +136,7 @@ class UserSyncService
       episode.save!
     end
 
-    # Mark series as synced (whether new or existing) since we just processed it
+    # Mark series as synced since we just processed it (new series already have timestamp set)
     series.mark_as_synced! unless is_new_series
   end
 
