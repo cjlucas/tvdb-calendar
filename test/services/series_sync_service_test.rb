@@ -1,13 +1,13 @@
 require "test_helper"
 
-class EpisodeSyncServiceTest < ActiveSupport::TestCase
+class SeriesSyncServiceTest < ActiveSupport::TestCase
   def setup
     @series = Series.create!(
       tvdb_id: rand(100000..999999),
       name: "Test Series"
     )
     @mock_client = Object.new
-    @service = EpisodeSyncService.new(@mock_client)
+    @service = SeriesSyncService.new(@mock_client)
   end
 
   test "should sync episodes for series" do
@@ -52,14 +52,14 @@ class EpisodeSyncServiceTest < ActiveSupport::TestCase
 
   test "should handle timezone detection from network" do
     # Test that network timezone mappings are correctly defined
-    assert EpisodeSyncService::NETWORK_TIMEZONE_MAPPINGS.present?
-    assert_equal "America/New_York", EpisodeSyncService::NETWORK_TIMEZONE_MAPPINGS[%w[HBO SHOWTIME STARZ EPIX]]
+    assert SeriesSyncService::NETWORK_TIMEZONE_MAPPINGS.present?
+    assert_equal "America/New_York", SeriesSyncService::NETWORK_TIMEZONE_MAPPINGS[%w[HBO SHOWTIME STARZ EPIX]]
   end
 
   test "should extract default air times based on network" do
     # Test that HBO series get 8 PM default
     series_details_hbo = { "originalNetwork" => "HBO" }
-    service = EpisodeSyncService.new(@mock_client)
+    service = SeriesSyncService.new(@mock_client)
     default_time = service.send(:extract_default_air_time, series_details_hbo)
     assert_equal "20:00", default_time
 
@@ -106,5 +106,85 @@ class EpisodeSyncServiceTest < ActiveSupport::TestCase
     assert_equal 1, @series.episodes.count
     episode = @series.episodes.first
     assert_equal "Valid Episode", episode.title
+  end
+
+  test "should sync series data and episodes" do
+    # Mock series details from TVDB API
+    series_details = {
+      "name" => "Updated Series Name",
+      "remoteIds" => [
+        { "sourceName" => "IMDB", "id" => "tt1234567" },
+        { "sourceName" => "TheMovieDB", "id" => "987654" }
+      ],
+      "originalNetwork" => "HBO"
+    }
+
+    # Mock episodes data
+    episodes_data = [
+      {
+        "name" => "Pilot",
+        "aired" => "2023-01-01",
+        "seasonNumber" => 1,
+        "number" => 1,
+        "finaleType" => "regular"
+      }
+    ]
+
+    # Set up mock client methods
+    @mock_client.define_singleton_method(:get_series_details) { |tvdb_id| series_details }
+    @mock_client.define_singleton_method(:get_series_episodes) { |tvdb_id| episodes_data }
+
+    # Call the main sync method
+    @service.sync_series_data(@series)
+
+    # Verify series data was updated
+    @series.reload
+    assert_equal "Updated Series Name", @series.name
+    assert_equal "tt1234567", @series.imdb_id
+
+    # Verify episodes were synced
+    assert_equal 1, @series.episodes.count
+    episode = @series.episodes.first
+    assert_equal "Pilot", episode.title
+    assert_equal Date.parse("2023-01-01"), episode.air_date
+    assert_equal 1, episode.season_number
+    assert_equal 1, episode.episode_number
+  end
+
+  test "should handle series with no IMDB ID" do
+    series_details = {
+      "name" => "Series Without IMDB",
+      "remoteIds" => [
+        { "sourceName" => "TheMovieDB", "id" => "987654" }
+      ]
+    }
+
+    episodes_data = []
+
+    @mock_client.define_singleton_method(:get_series_details) { |tvdb_id| series_details }
+    @mock_client.define_singleton_method(:get_series_episodes) { |tvdb_id| episodes_data }
+
+    @service.sync_series_data(@series)
+
+    @series.reload
+    assert_equal "Series Without IMDB", @series.name
+    assert_nil @series.imdb_id
+  end
+
+  test "should handle series with no remoteIds" do
+    series_details = {
+      "name" => "Series Without Remote IDs"
+    }
+
+    episodes_data = []
+
+    @mock_client.define_singleton_method(:get_series_details) { |tvdb_id| series_details }
+    @mock_client.define_singleton_method(:get_series_episodes) { |tvdb_id| episodes_data }
+
+    @service.sync_series_data(@series)
+
+    @series.reload
+    assert_equal "Series Without Remote IDs", @series.name
+    assert_nil @series.imdb_id
   end
 end
