@@ -124,6 +124,9 @@ class UserSyncService
 
       episode.save!
     end
+
+    # Mark series as synced (whether new or existing) since we just processed it
+    series.mark_as_synced! unless is_new_series
   end
 
   def broadcast_sync_progress(current, total, message)
