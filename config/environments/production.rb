@@ -83,11 +83,23 @@ Rails.application.configure do
   config.secret_key_base = ENV["SECRET_KEY_BASE"]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
-  # config.hosts = [
-  #   "example.com",     # Allow requests from example.com
-  #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
-  # ]
+  # Rails blocks requests with unexpected Host headers to prevent host header injection attacks.
+  # When using proxies or load balancers, you may need to specify allowed hosts.
   #
+  # ALLOWED_HOSTS: Configure allowed hosts for proxy support (comma-separated)
+  # Examples:
+  #   Single host:    ALLOWED_HOSTS="example.com"
+  #   Multiple hosts: ALLOWED_HOSTS="example.com,www.example.com"
+  #   Wildcards:      ALLOWED_HOSTS="*.example.com"
+  #   Mixed:          ALLOWED_HOSTS="example.com,*.staging.com"
+  #
+  # Leave empty in production for security unless you're using a proxy/load balancer
+  # that changes the Host header.
+  if ENV["ALLOWED_HOSTS"].present?
+    allowed_hosts = ENV["ALLOWED_HOSTS"].split(",").map(&:strip).reject(&:blank?)
+    config.hosts = allowed_hosts if allowed_hosts.any?
+  end
+
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end
