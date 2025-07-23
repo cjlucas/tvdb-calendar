@@ -1,13 +1,13 @@
 require "test_helper"
 
-class EpisodeSyncServiceTest < ActiveSupport::TestCase
+class SeriesSyncServiceTest < ActiveSupport::TestCase
   def setup
     @series = Series.create!(
       tvdb_id: rand(100000..999999),
       name: "Test Series"
     )
     @mock_client = Object.new
-    @service = EpisodeSyncService.new(@mock_client)
+    @service = SeriesSyncService.new(@mock_client)
   end
 
   test "should sync episodes for series" do
@@ -52,14 +52,14 @@ class EpisodeSyncServiceTest < ActiveSupport::TestCase
 
   test "should handle timezone detection from network" do
     # Test that network timezone mappings are correctly defined
-    assert EpisodeSyncService::NETWORK_TIMEZONE_MAPPINGS.present?
-    assert_equal "America/New_York", EpisodeSyncService::NETWORK_TIMEZONE_MAPPINGS[%w[HBO SHOWTIME STARZ EPIX]]
+    assert SeriesSyncService::NETWORK_TIMEZONE_MAPPINGS.present?
+    assert_equal "America/New_York", SeriesSyncService::NETWORK_TIMEZONE_MAPPINGS[%w[HBO SHOWTIME STARZ EPIX]]
   end
 
   test "should extract default air times based on network" do
     # Test that HBO series get 8 PM default
     series_details_hbo = { "originalNetwork" => "HBO" }
-    service = EpisodeSyncService.new(@mock_client)
+    service = SeriesSyncService.new(@mock_client)
     default_time = service.send(:extract_default_air_time, series_details_hbo)
     assert_equal "20:00", default_time
 

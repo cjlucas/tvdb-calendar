@@ -81,13 +81,13 @@ class UserSyncService
       # Association already exists, continue
     end
 
-    # Sync episodes using shared service (only if new series or needs sync)
+    # Sync episodes using consolidated service (only if new series or needs sync)
     # For existing series, we may need series details for episode processing
     # Only fetch if we didn't already get it for a new series
     series_details = defined?(series_details) ? series_details : nil
 
-    episode_sync_service = EpisodeSyncService.new(@client)
-    episode_sync_service.sync_episodes_for_series(series, series_details)
+    series_sync_service = SeriesSyncService.new(@client)
+    series_sync_service.sync_episodes_for_series(series, series_details)
 
     # Mark series as synced since we just processed it (new series already have timestamp set)
     series.mark_as_synced! unless is_new_series

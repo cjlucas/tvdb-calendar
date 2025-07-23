@@ -1,4 +1,4 @@
-class EpisodeSyncService
+class SeriesSyncService
   # Network timezone mappings for common TV networks
   # Based on typical broadcast timezones and network headquarters
   # Update this hash when adding support for new networks or regions
@@ -22,6 +22,20 @@ class EpisodeSyncService
 
   def initialize(client = nil)
     @client = client || TvdbClient.new
+  end
+
+  def sync_series_data(series)
+    # Get updated series details
+    series_details = @client.get_series_details(series.tvdb_id)
+
+    # Update series information
+    series.update!(
+      name: series_details["name"],
+      imdb_id: series_details["remoteIds"]&.find { |r| r["sourceName"] == "IMDB" }&.dig("id")
+    )
+
+    # Sync episodes for this series
+    sync_episodes_for_series(series, series_details)
   end
 
   def sync_episodes_for_series(series, series_details = nil)
@@ -80,7 +94,7 @@ class EpisodeSyncService
         local_time = source_tz.parse(time_str)
         return local_time.utc if local_time
       rescue => e
-        Rails.logger.warn "EpisodeSyncService: Failed to parse air time '#{air_time}' for episode: #{e.message}"
+        Rails.logger.warn "SeriesSyncService: Failed to parse air time '#{air_time}' for episode: #{e.message}"
       end
     end
 
@@ -96,7 +110,7 @@ class EpisodeSyncService
         default_datetime = source_tz.parse("#{base_date} #{default_air_time}")
         return default_datetime.utc if default_datetime
       rescue => e
-        Rails.logger.warn "EpisodeSyncService: Failed to parse default air time '#{default_air_time}': #{e.message}"
+        Rails.logger.warn "SeriesSyncService: Failed to parse default air time '#{default_air_time}': #{e.message}"
       end
     end
 

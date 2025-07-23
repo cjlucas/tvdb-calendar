@@ -36,17 +36,8 @@ class SeriesSyncJob < ApplicationJob
   def sync_series_data(series)
     client = TvdbClient.new
 
-    # Get updated series details
-    series_details = client.get_series_details(series.tvdb_id)
-
-    # Update series information
-    series.update!(
-      name: series_details["name"],
-      imdb_id: series_details["remoteIds"]&.find { |r| r["sourceName"] == "IMDB" }&.dig("id")
-    )
-
-    # Also sync episodes for this series using shared service
-    episode_sync_service = EpisodeSyncService.new(client)
-    episode_sync_service.sync_episodes_for_series(series, series_details)
+    # Use consolidated service for all series sync operations
+    series_sync_service = SeriesSyncService.new(client)
+    series_sync_service.sync_series_data(series)
   end
 end
