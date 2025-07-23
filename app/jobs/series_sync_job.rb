@@ -1,6 +1,20 @@
 class SeriesSyncJob < ApplicationJob
   queue_as :default
 
+  # Prevent multiple instances from running simultaneously
+  def self.perform_later_if_unique
+    # Check if job is already enqueued or running (safe for test environment)
+    begin
+      return false if defined?(SolidQueue::Job) &&
+                     SolidQueue::Job.where(class_name: name, finished_at: nil).exists?
+    rescue ActiveRecord::StatementInvalid => e
+      # Handle case where SolidQueue tables don't exist (e.g., test environment)
+      Rails.logger.warn "SeriesSyncJob: Could not check job uniqueness: #{e.message}"
+    end
+
+    perform_later
+  end
+
   def perform
     series_to_sync = Series.where("last_synced_at IS NULL OR last_synced_at < ?", 12.hours.ago)
 

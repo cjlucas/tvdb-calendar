@@ -4,8 +4,7 @@ default: &default
     queue: default
     schedule: every 5 minutes
   sync_series:
-    class: SeriesSyncJob
-    queue: default
+    command: "SeriesSyncJob.perform_later_if_unique"
     schedule: every 5 minutes
 
 development:
