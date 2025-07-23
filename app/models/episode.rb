@@ -24,7 +24,7 @@ class Episode < ApplicationRecord
   end
 
   def location_text
-    "#{title} - (#{episode_code})"
+    "#{title} (#{episode_code})"
   end
 
   def air_time_in_timezone(target_timezone = "America/New_York")

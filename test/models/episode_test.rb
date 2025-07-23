@@ -91,7 +91,7 @@ class EpisodeTest < ActiveSupport::TestCase
   end
 
   test "location_text should format correctly" do
-    expected = "Test Episode - (01x05)"
+    expected = "Test Episode (01x05)"
     assert_equal expected, @episode.location_text
   end
 

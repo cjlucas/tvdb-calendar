@@ -58,7 +58,7 @@ class IcsGeneratorTest < ActiveSupport::TestCase
 
     # Check event fields
     assert_includes ics_content, "SUMMARY:Test Series"
-    assert_includes ics_content, "LOCATION:Test Episode - (01x05)"
+    assert_includes ics_content, "LOCATION:Test Episode (01x05)"
 
     # Check date format
     date_str = (@episode.air_date).strftime("%Y%m%d")

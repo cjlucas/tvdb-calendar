@@ -28,7 +28,7 @@ class CalendarControllerTest < ActionDispatch::IntegrationTest
     assert_includes calendar_content, "BEGIN:VCALENDAR"
     assert_includes calendar_content, "END:VCALENDAR"
     assert_includes calendar_content, "Test Series"
-    assert_includes calendar_content, "Test Episode - (01x01)"
+    assert_includes calendar_content, "Test Episode (01x01)"
   end
 
   test "should serve ICS with proper filename" do
