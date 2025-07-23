@@ -81,4 +81,28 @@ class SeriesTest < ActiveSupport::TestCase
     @series.imdb_id = ""
     assert_nil @series.imdb_url
   end
+
+  test "needs_sync? should return true when last_synced_at is nil" do
+    @series.last_synced_at = nil
+    assert @series.needs_sync?
+  end
+
+  test "needs_sync? should return true when last_synced_at is older than 12 hours" do
+    @series.last_synced_at = 13.hours.ago
+    assert @series.needs_sync?
+  end
+
+  test "needs_sync? should return false when last_synced_at is within 12 hours" do
+    @series.last_synced_at = 11.hours.ago
+    assert_not @series.needs_sync?
+  end
+
+  test "mark_as_synced! should update last_synced_at to current time" do
+    @series.save!
+    freeze_time = Time.current
+    travel_to freeze_time do
+      @series.mark_as_synced!
+      assert_in_delta freeze_time.to_f, @series.reload.last_synced_at.to_f, 1.0
+    end
+  end
 end
