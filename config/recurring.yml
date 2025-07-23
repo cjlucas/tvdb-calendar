@@ -3,6 +3,10 @@ default: &default
     class: UserSyncJob
     queue: default
     schedule: every 5 minutes
+  sync_series:
+    class: SeriesSyncJob
+    queue: default
+    schedule: every 5 minutes
 
 development:
   <<: *default

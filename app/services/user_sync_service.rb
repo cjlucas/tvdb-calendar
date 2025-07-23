@@ -61,19 +61,28 @@ class UserSyncService
   private
 
   def sync_series(series_id, current, total)
-    # Get detailed series information first to show series name
-    series_details = @client.get_series_details(series_id)
-    series_name = series_details["name"] || "Unknown Series"
+    # Check if series already exists in the system
+    series = Series.find_by(tvdb_id: series_id)
+    is_new_series = series.nil?
 
-    broadcast_sync_progress(current, total, "Syncing: #{series_name}...")
+    if is_new_series
+      # Get detailed series information for new series
+      series_details = @client.get_series_details(series_id)
+      series_name = series_details["name"] || "Unknown Series"
 
-    # Find or create series record (normalized schema)
-    series = Series.find_or_initialize_by(tvdb_id: series_id)
-    series.assign_attributes(
-      name: series_details["name"],
-      imdb_id: series_details["remoteIds"]&.find { |r| r["sourceName"] == "IMDB" }&.dig("id")
-    )
-    series.save!
+      broadcast_sync_progress(current, total, "Syncing new series: #{series_name}...")
+
+      # Create new series record (normalized schema)
+      series = Series.create!(
+        tvdb_id: series_id,
+        name: series_details["name"],
+        imdb_id: series_details["remoteIds"]&.find { |r| r["sourceName"] == "IMDB" }&.dig("id"),
+        last_synced_at: Time.current
+      )
+    else
+      # For existing series, just show progress without syncing series data
+      broadcast_sync_progress(current, total, "Syncing episodes for: #{series.name}...")
+    end
 
     # Associate series with user (handles race conditions gracefully)
     begin
@@ -84,6 +93,13 @@ class UserSyncService
 
     # Get episodes for this series
     episodes_data = @client.get_series_episodes(series_id)
+
+    # For existing series, we may need series details for episode processing
+    # Only fetch if we didn't already get it for a new series
+    series_details = defined?(series_details) ? series_details : nil
+    if series_details.nil? && !is_new_series
+      series_details = @client.get_series_details(series_id)
+    end
 
     # Sync episodes
     episodes_data.each do |episode_data|
