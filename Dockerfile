@@ -20,6 +20,7 @@ RUN apt-get update -qq && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Set production environment (can be overridden at runtime)
+# ALLOWED_HOSTS: Configure allowed hosts for proxy support (comma-separated hostnames)
 ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
