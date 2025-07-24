@@ -51,10 +51,8 @@ class TvdbClient
   end
 
   def get_series_details(series_id)
-    raise "Not authenticated" unless @token
-
     response = self.class.get("/series/#{series_id}/extended",
-      headers: auth_headers
+      headers: public_headers
     )
 
     if response.success?
@@ -65,8 +63,6 @@ class TvdbClient
   end
 
   def get_series_episodes(series_id, season = nil)
-    raise "Not authenticated" unless @token
-
     url = "/series/#{series_id}/episodes/default"
     url += "?season=#{season}" if season
 
@@ -75,7 +71,7 @@ class TvdbClient
 
     loop do
       page_url = "#{url}#{season ? '&' : '?'}page=#{page}"
-      response = self.class.get(page_url, headers: auth_headers)
+      response = self.class.get(page_url, headers: public_headers)
 
       if response.success?
         data = response.parsed_response["data"]
@@ -98,6 +94,12 @@ class TvdbClient
   def auth_headers
     {
       "Authorization" => "Bearer #{@token}",
+      "Content-Type" => "application/json"
+    }
+  end
+
+  def public_headers
+    {
       "Content-Type" => "application/json"
     }
   end
