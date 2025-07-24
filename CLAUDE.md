@@ -109,11 +109,10 @@ Services:
 ```
 
 ### TheTVDB API
-- **Authentication**: Only user-related endpoints require authentication tokens
-  - **Token Required**: User favorites, user-specific data
-  - **Token NOT Required**: Series details, episode data, general series information
-- **Implementation**: TvdbClient should only authenticate when accessing user endpoints
-- **Why**: Reduces unnecessary API calls and improves performance for public data access
+- **Authentication**: ALL endpoints require bearer tokens for authentication
+  - **Token Required**: ALL API calls (user favorites, series details, episode data, etc.)
+  - **Implementation**: TvdbClient must authenticate for ALL API requests
+  - **Why**: TheTVDB API requires authentication for all data access
 
 ## Notes
 
