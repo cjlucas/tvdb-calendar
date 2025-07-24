@@ -27,13 +27,13 @@ class UserSyncIndividualJobTest < ActiveJob::TestCase
 
   test "should accept force parameter and pass to UserSyncService" do
     # Test that the job accepts force parameter and passes it correctly
-    
+
     # Create a simple test to verify the method signature accepts force parameter
     job = UserSyncIndividualJob.new
-    
+
     # Test that perform method can be called with force parameter
     assert_respond_to job, :perform
-    
+
     # Check that the source code includes force parameter handling
     job_source = File.read(Rails.root.join("app/jobs/user_sync_individual_job.rb"))
     assert_includes job_source, "force: false"
@@ -43,6 +43,6 @@ class UserSyncIndividualJobTest < ActiveJob::TestCase
   test "should log force indicator in job source" do
     # Verify the job source includes force logging
     job_source = File.read(Rails.root.join("app/jobs/user_sync_individual_job.rb"))
-    assert_includes job_source, 'force ? \' (forced)\' : \'\''
+    assert_includes job_source, "force ? ' (forced)' : ''"
   end
 end
