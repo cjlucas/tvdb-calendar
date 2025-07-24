@@ -45,14 +45,25 @@ class SeriesSyncService
     # Get episodes for this series
     episodes_data = @client.get_series_episodes(series.tvdb_id)
 
+    # Load all existing episodes for this series to avoid N+1 queries
+    existing_episodes = series.episodes.index_by { |ep| [ ep.season_number, ep.episode_number ] }
+
     # Sync episodes
     episodes_data.each do |episode_data|
       next unless episode_data["aired"] && episode_data["seasonNumber"] && episode_data["number"]
 
-      episode = series.episodes.find_or_initialize_by(
-        season_number: episode_data["seasonNumber"],
-        episode_number: episode_data["number"]
-      )
+      # Use in-memory lookup instead of database query
+      episode_key = [ episode_data["seasonNumber"], episode_data["number"] ]
+      episode = existing_episodes[episode_key]
+
+      if episode.nil?
+        # Create new episode
+        episode = series.episodes.build(
+          season_number: episode_data["seasonNumber"],
+          episode_number: episode_data["number"]
+        )
+        existing_episodes[episode_key] = episode
+      end
 
       # Parse air time and timezone information if available
       air_datetime_utc = parse_air_datetime(episode_data, series_details)
