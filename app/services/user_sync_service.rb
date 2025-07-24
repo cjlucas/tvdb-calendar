@@ -1,11 +1,12 @@
 class UserSyncService
-  def initialize(user)
+  def initialize(user, force: false)
     @user = user
     @client = TvdbClient.new
+    @force = force
   end
 
   def call
-    Rails.logger.info "UserSyncService: Starting sync for user ID #{@user.id}"
+    Rails.logger.info "UserSyncService: Starting sync for user ID #{@user.id}#{@force ? ' (forced)' : ''}"
 
     # Authenticate with the user's PIN
     @client.authenticate(@user.pin)
@@ -60,7 +61,7 @@ class UserSyncService
       )
     else
       # For existing series, check if it needs sync (series + episodes)
-      if series.needs_sync?
+      if @force || series.needs_sync?
         broadcast_sync_progress(current, total, "Syncing series: #{series.name}...")
       else
         broadcast_sync_progress(current, total, "Skipping recent sync: #{series.name}")
