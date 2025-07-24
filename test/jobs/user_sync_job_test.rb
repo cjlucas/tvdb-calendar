@@ -10,53 +10,135 @@ class UserSyncJobTest < ActiveJob::TestCase
     @user2.update!(last_synced_at: 30.minutes.ago) # Recently synced
   end
 
-  test "should accept force parameter" do
-    job = UserSyncJob.new
-    assert_respond_to job, :perform
+  test "should sync only users that need sync when force is false" do
+    sync_service_calls = []
 
-    # Check that the source code includes force parameter handling
-    job_source = File.read(Rails.root.join("app/jobs/user_sync_job.rb"))
-    assert_includes job_source, "force: false"
-    assert_includes job_source, "if force"
+    # Mock UserSyncService to track which users are synced and with what force setting
+    original_new = UserSyncService.method(:new)
+    UserSyncService.define_singleton_method(:new) do |user, force: false|
+      sync_service_calls << { user: user, force: force }
+
+      # Return a mock service that responds to call
+      mock_service = Object.new
+      mock_service.define_singleton_method(:call) { true }
+      mock_service
+    end
+
+    UserSyncJob.perform_now(force: false)
+
+    # Should only sync user1 (who needs sync), not user2 (recently synced)
+    synced_users = sync_service_calls.map { |call| call[:user] }
+    assert_includes synced_users, @user1
+    assert_not_includes synced_users, @user2
+
+    # All calls should have force: false
+    sync_service_calls.each do |call|
+      assert_equal false, call[:force]
+    end
+  ensure
+    UserSyncService.define_singleton_method(:new, original_new)
   end
 
-  test "should query different users based on force parameter" do
-    # Test the SQL logic for user selection
+  test "should sync all users when force is true" do
+    sync_service_calls = []
 
-    # Normal sync should only get users that need sync
-    users_needing_sync = User.where("last_synced_at IS NULL OR last_synced_at < ?", 1.hour.ago)
-    assert_includes users_needing_sync, @user1
-    assert_not_includes users_needing_sync, @user2
+    # Mock UserSyncService to track all sync calls
+    original_new = UserSyncService.method(:new)
+    UserSyncService.define_singleton_method(:new) do |user, force: false|
+      sync_service_calls << { user: user, force: force }
 
-    # Force sync should get all users
-    all_users = User.all
-    assert_includes all_users, @user1
-    assert_includes all_users, @user2
+      mock_service = Object.new
+      mock_service.define_singleton_method(:call) { true }
+      mock_service
+    end
+
+    UserSyncJob.perform_now(force: true)
+
+    # Should sync both users when force is true
+    synced_users = sync_service_calls.map { |call| call[:user] }
+    assert_includes synced_users, @user1
+    assert_includes synced_users, @user2
+
+    # All calls should have force: true
+    sync_service_calls.each do |call|
+      assert_equal true, call[:force]
+    end
+
+    # Should sync all users in the system
+    assert_equal User.count, sync_service_calls.length
+  ensure
+    UserSyncService.define_singleton_method(:new, original_new)
   end
 
-  test "should log appropriate messages for force vs normal sync" do
-    job_source = File.read(Rails.root.join("app/jobs/user_sync_job.rb"))
+  test "should default force parameter to false" do
+    sync_service_calls = []
 
-    # Should include logging for force sync
-    assert_includes job_source, "Force sync - syncing all"
+    original_new = UserSyncService.method(:new)
+    UserSyncService.define_singleton_method(:new) do |user, force: false|
+      sync_service_calls << { user: user, force: force }
 
-    # Should include logging for normal sync
-    assert_includes job_source, "Found"
-    assert_includes job_source, "users to sync"
-  end
+      mock_service = Object.new
+      mock_service.define_singleton_method(:call) { true }
+      mock_service
+    end
 
-  test "should pass force parameter to UserSyncService" do
-    job_source = File.read(Rails.root.join("app/jobs/user_sync_job.rb"))
+    # Call without force parameter
+    UserSyncJob.perform_now
 
-    # Should pass force parameter to UserSyncService
-    assert_includes job_source, "UserSyncService.new(user, force: force)"
+    # Should only sync users that need sync (default behavior)
+    synced_users = sync_service_calls.map { |call| call[:user] }
+    assert_includes synced_users, @user1
+    assert_not_includes synced_users, @user2
+
+    # All force values should be false
+    sync_service_calls.each do |call|
+      assert_equal false, call[:force]
+    end
+  ensure
+    UserSyncService.define_singleton_method(:new, original_new)
   end
 
   test "should handle sync errors gracefully" do
-    job_source = File.read(Rails.root.join("app/jobs/user_sync_job.rb"))
+    sync_service_calls = []
 
-    # Should have error handling
-    assert_includes job_source, "rescue => e"
-    assert_includes job_source, "Failed to sync user ID"
+    # Mock UserSyncService to raise error for one user
+    original_new = UserSyncService.method(:new)
+    UserSyncService.define_singleton_method(:new) do |user, force: false|
+      sync_service_calls << { user: user, force: force }
+
+      mock_service = Object.new
+      if user == @user1
+        mock_service.define_singleton_method(:call) { raise StandardError.new("Sync failed") }
+      else
+        mock_service.define_singleton_method(:call) { true }
+      end
+      mock_service
+    end
+
+    # Should not raise error, should continue processing other users
+    assert_nothing_raised do
+      UserSyncJob.perform_now(force: true)
+    end
+
+    # Should have attempted to sync all users despite the error
+    assert_equal User.count, sync_service_calls.length
+  ensure
+    UserSyncService.define_singleton_method(:new, original_new)
+  end
+
+  test "should use different user selection logic based on force parameter" do
+    # Test the actual user selection queries
+    users_needing_sync = User.where("last_synced_at IS NULL OR last_synced_at < ?", 1.hour.ago)
+    all_users = User.all
+
+    # Verify our test setup is correct
+    assert_includes users_needing_sync, @user1
+    assert_not_includes users_needing_sync, @user2
+    assert_includes all_users, @user1
+    assert_includes all_users, @user2
+
+    # The job should use different queries based on force parameter
+    # This is tested implicitly by the previous tests, but we verify the queries work as expected
+    assert users_needing_sync.count < all_users.count, "Should have fewer users needing sync than total users"
   end
 end

@@ -25,24 +25,57 @@ class UserSyncIndividualJobTest < ActiveJob::TestCase
     assert_includes job_source, '"PIN Invalid"'
   end
 
-  test "should accept force parameter and pass to UserSyncService" do
-    # Test that the job accepts force parameter and passes it correctly
+  test "should pass force parameter to UserSyncService" do
+    sync_service_calls = []
 
-    # Create a simple test to verify the method signature accepts force parameter
-    job = UserSyncIndividualJob.new
+    # Mock UserSyncService.new to capture the force parameter
+    original_new = UserSyncService.method(:new)
+    UserSyncService.define_singleton_method(:new) do |user, force: false|
+      sync_service_calls << { user: user, force: force }
 
-    # Test that perform method can be called with force parameter
-    assert_respond_to job, :perform
+      # Return a mock service that responds to call
+      mock_service = Object.new
+      mock_service.define_singleton_method(:call) { true }
+      mock_service
+    end
 
-    # Check that the source code includes force parameter handling
-    job_source = File.read(Rails.root.join("app/jobs/user_sync_individual_job.rb"))
-    assert_includes job_source, "force: false"
-    assert_includes job_source, "force: force"
+    # Test with force: true
+    UserSyncIndividualJob.perform_now(@user.pin, force: true)
+    assert_equal 1, sync_service_calls.length
+    assert_equal @user, sync_service_calls[0][:user]
+    assert_equal true, sync_service_calls[0][:force]
+
+    # Reset and test with force: false
+    sync_service_calls.clear
+    UserSyncIndividualJob.perform_now(@user.pin, force: false)
+    assert_equal 1, sync_service_calls.length
+    assert_equal false, sync_service_calls[0][:force]
+
+    # Reset and test with default (no force parameter)
+    sync_service_calls.clear
+    UserSyncIndividualJob.perform_now(@user.pin)
+    assert_equal 1, sync_service_calls.length
+    assert_equal false, sync_service_calls[0][:force]
+  ensure
+    # Restore original method
+    UserSyncService.define_singleton_method(:new, original_new)
   end
 
-  test "should log force indicator in job source" do
-    # Verify the job source includes force logging
-    job_source = File.read(Rails.root.join("app/jobs/user_sync_individual_job.rb"))
-    assert_includes job_source, "force ? ' (forced)' : ''"
+  test "should handle sync service errors gracefully" do
+    # Mock UserSyncService to raise an error
+    original_new = UserSyncService.method(:new)
+    UserSyncService.define_singleton_method(:new) do |user, force: false|
+      mock_service = Object.new
+      mock_service.define_singleton_method(:call) { raise StandardError.new("Sync failed") }
+      mock_service
+    end
+
+    # Should not raise error, should broadcast error message instead
+    assert_nothing_raised do
+      UserSyncIndividualJob.perform_now(@user.pin, force: true)
+    end
+  ensure
+    # Restore original method
+    UserSyncService.define_singleton_method(:new, original_new)
   end
 end
