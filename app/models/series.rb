@@ -20,10 +20,10 @@ class Series < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["created_at", "id", "imdb_id", "last_synced_at", "name", "tvdb_id", "updated_at"]
+    [ "created_at", "id", "imdb_id", "last_synced_at", "name", "tvdb_id", "updated_at" ]
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ["episodes", "users", "user_series"]
+    [ "episodes", "users", "user_series" ]
   end
 end

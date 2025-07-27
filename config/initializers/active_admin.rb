@@ -134,7 +134,7 @@ ActiveAdmin.setup do |config|
   # roots for each namespace.
   #
   # Default:
-  # config.root_to = 'dashboard#index'
+  config.root_to = "users#index"
 
   # == Admin Comments
   #
@@ -225,7 +225,7 @@ ActiveAdmin.setup do |config|
   # and feel.
   #
   # To load a stylesheet:
-  #   config.register_stylesheet 'my_stylesheet.css'
+  config.register_stylesheet "active_admin_custom.css"
   #
   # You can provide an options hash for more control, which is passed along to stylesheet_link_tag():
   #   config.register_stylesheet 'my_print_stylesheet.css', media: :print
@@ -327,7 +327,13 @@ ActiveAdmin.setup do |config|
   # You can add your own content to the site head like analytics. Make sure
   # you only pass content you trust.
   #
-  # config.head = ''.html_safe
+  config.head = %{
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        document.body.classList.add('env-#{Rails.env}');
+      });
+    </script>
+  }.html_safe
 
   # == Footer
   #
