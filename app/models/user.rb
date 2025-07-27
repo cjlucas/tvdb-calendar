@@ -12,4 +12,12 @@ class User < ApplicationRecord
   def mark_as_synced!
     update!(last_synced_at: Time.current)
   end
+
+  def self.ransackable_attributes(auth_object = nil)
+    [ "created_at", "id", "last_synced_at", "pin", "updated_at" ]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    [ "episodes", "series", "user_series" ]
+  end
 end
