@@ -73,3 +73,6 @@ gem "dotenv-rails", group: [ :development, :test ]
 gem "httparty"
 
 gem "pry", "~> 0.15.2", group: :development
+
+# Admin interface
+gem "activeadmin"
