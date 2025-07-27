@@ -76,3 +76,5 @@ gem "pry", "~> 0.15.2", group: :development
 
 # Admin interface
 gem "activeadmin"
+gem "sprockets-rails"  # Required for ActiveAdmin asset compilation
+gem "sassc-rails"      # SASS processor for Sprockets
