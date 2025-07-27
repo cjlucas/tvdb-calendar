@@ -15,7 +15,8 @@ ActiveAdmin.register UserSeries do
     actions
   end
 
-  filter :user, as: :select, collection: -> { User.order(:pin) }
+  filter :user_id_eq, as: :string, label: "User ID"
+  filter :user_pin_eq, as: :string, label: "User PIN"
   filter :series, as: :select, collection: -> { Series.order(:name) }
   filter :created_at
 
