@@ -1,4 +1,5 @@
 ActiveAdmin.register Series do
+  menu priority: 3
   permit_params :tvdb_id, :name, :imdb_id, :last_synced_at
 
   index do
@@ -18,7 +19,7 @@ ActiveAdmin.register Series do
       series.episodes.count
     end
     column :needs_sync? do |series|
-      status_tag(series.needs_sync? ? "Yes" : "No", series.needs_sync? ? :error : :ok)
+      status_tag(series.needs_sync? ? "Yes" : "No", class: series.needs_sync? ? "error" : "ok")
     end
     column :last_synced_at
     column :created_at
@@ -51,7 +52,7 @@ ActiveAdmin.register Series do
         series.episodes.count
       end
       row :needs_sync? do |series|
-        status_tag(series.needs_sync? ? "Yes" : "No", series.needs_sync? ? :error : :ok)
+        status_tag(series.needs_sync? ? "Yes" : "No", class: series.needs_sync? ? "error" : "ok")
       end
     end
 

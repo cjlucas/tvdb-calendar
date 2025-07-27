@@ -46,4 +46,12 @@ class Episode < ApplicationRecord
     return nil unless runtime_minutes.present?
     runtime_minutes.minutes
   end
+
+  def self.ransackable_attributes(auth_object = nil)
+    ["air_date", "air_datetime_utc", "air_time", "created_at", "episode_number", "id", "is_season_finale", "original_timezone", "runtime_minutes", "season_number", "series_id", "title", "updated_at"]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    ["series", "users"]
+  end
 end

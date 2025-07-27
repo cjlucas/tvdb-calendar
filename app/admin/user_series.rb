@@ -1,4 +1,5 @@
 ActiveAdmin.register UserSeries do
+  menu priority: 2
   permit_params :user_id, :series_id
 
   index do

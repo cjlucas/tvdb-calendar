@@ -1,4 +1,5 @@
 ActiveAdmin.register User do
+  menu priority: 1
   permit_params :pin, :last_synced_at
 
   index do
@@ -10,7 +11,7 @@ ActiveAdmin.register User do
       user.series.count
     end
     column :needs_sync? do |user|
-      status_tag(user.needs_sync? ? "Yes" : "No", user.needs_sync? ? :error : :ok)
+      status_tag(user.needs_sync? ? "Yes" : "No", class: user.needs_sync? ? "error" : "ok")
     end
     column :created_at
     actions
@@ -31,7 +32,7 @@ ActiveAdmin.register User do
         user.series.count
       end
       row :needs_sync? do |user|
-        status_tag(user.needs_sync? ? "Yes" : "No", user.needs_sync? ? :error : :ok)
+        status_tag(user.needs_sync? ? "Yes" : "No", class: user.needs_sync? ? "error" : "ok")
       end
     end
 

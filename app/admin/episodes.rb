@@ -1,4 +1,5 @@
 ActiveAdmin.register Episode do
+  menu priority: 4
   permit_params :series_id, :title, :season_number, :episode_number, :air_date, :is_season_finale, :air_time, :runtime_minutes, :original_timezone, :air_datetime_utc
 
   index do
@@ -13,7 +14,7 @@ ActiveAdmin.register Episode do
     column :air_datetime_utc
     column :runtime_minutes
     column :is_season_finale do |episode|
-      status_tag(episode.is_season_finale ? "Yes" : "No", episode.is_season_finale ? :yes : :no)
+      status_tag(episode.is_season_finale ? "Yes" : "No", class: episode.is_season_finale ? "yes" : "no")
     end
     column :created_at
     actions
@@ -50,14 +51,14 @@ ActiveAdmin.register Episode do
         "#{episode.runtime_minutes} minutes" if episode.runtime_minutes
       end
       row :is_season_finale do |episode|
-        status_tag(episode.is_season_finale ? "Yes" : "No", episode.is_season_finale ? :yes : :no)
+        status_tag(episode.is_season_finale ? "Yes" : "No", class: episode.is_season_finale ? "yes" : "no")
       end
       row :created_at
       row :updated_at
       row :full_title
       row :location_text
       row :has_specific_air_time? do |episode|
-        status_tag(episode.has_specific_air_time? ? "Yes" : "No", episode.has_specific_air_time? ? :yes : :no)
+        status_tag(episode.has_specific_air_time? ? "Yes" : "No", class: episode.has_specific_air_time? ? "yes" : "no")
       end
     end
   end
