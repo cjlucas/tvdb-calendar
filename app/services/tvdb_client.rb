@@ -81,8 +81,12 @@ class TvdbClient
         data = response.parsed_response["data"]
         all_episodes.concat(data["episodes"] || [])
 
-        # Check if there are more pages
-        total_pages = data.dig("links", "total_pages") || 1
+        # Check if there are more pages using top-level links
+        links = response.parsed_response["links"]
+        total_items = links&.dig("total_items") || 0
+        page_size = links&.dig("page_size") || 500
+        total_pages = (total_items.to_f / page_size).ceil
+
         break if page >= total_pages - 1
         page += 1
       else
