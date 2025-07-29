@@ -62,6 +62,8 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
+  # For stubbing and mocking in tests
+  gem "mocha"
 end
 
 gem "claude-on-rails", "~> 0.1.3", group: :development
