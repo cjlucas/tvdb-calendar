@@ -43,10 +43,6 @@ ActiveAdmin.register User do
       end
     end
 
-    panel "Actions" do
-      link_to "Trigger Sync", sync_admin_user_path(user), method: :post, class: "button", confirm: "Queue sync job for this user?"
-    end
-
     panel "Series" do
       table_for user.series.limit(10) do
         column :name do |series|
@@ -55,6 +51,10 @@ ActiveAdmin.register User do
         column :tvdb_id
         column :last_synced_at
       end
+    end
+
+    panel "Actions" do
+      link_to "Trigger Sync", sync_admin_user_path(user), method: :post, class: "button", confirm: "Queue sync job for this user?"
     end
   end
 end
