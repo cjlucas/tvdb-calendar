@@ -3,6 +3,9 @@ require_relative "../config/environment"
 require "rails/test_help"
 require "mocha/minitest"
 
+# Skip PIN validation for tests by default
+ENV["SKIP_PIN_VALIDATION"] = "true"
+
 # Load InvalidPinError for tests
 require_relative "../app/services/tvdb_client"
 

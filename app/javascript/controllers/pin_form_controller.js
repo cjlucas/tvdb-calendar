@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { createConsumer } from "@rails/actioncable"
 
 export default class extends Controller {
-  static targets = ["input", "submit", "progress", "progressFill", "progressText", "progressCounter", "progressPercentage", "result", "error", "calendarUrl", "copyButton", "downloadButton", "errorMessage"]
+  static targets = ["input", "submit", "progress", "progressFill", "progressText", "progressCounter", "progressPercentage", "result", "error", "calendarUrl", "copyButton", "downloadButton", "errorMessage", "errorHelp"]
   static outlets = []
 
   connect() {
@@ -65,7 +65,28 @@ export default class extends Controller {
       const data = await response.json()
 
       if (!response.ok) {
-        this.showError(data.message || data.errors?.join(", ") || "An error occurred")
+        // Handle validation errors specifically for PIN validation
+        if (response.status === 422 && data.errors) {
+          // Check if this is a PIN validation error and provide better messaging
+          const errorMessages = data.errors
+          const pinErrors = errorMessages.filter(msg => msg.toLowerCase().includes('pin'))
+          
+          if (pinErrors.length > 0) {
+            // Show PIN-specific error with helpful context
+            const errorMsg = pinErrors.join(", ")
+            if (errorMsg.includes("is invalid")) {
+              this.showError("The PIN you entered is invalid. Please check your TheTVDB account and make sure you have an active subscription.", true)
+            } else if (errorMsg.includes("could not be validated")) {
+              this.showError("Unable to validate your PIN at this time. Please check your internet connection and try again.", false)
+            } else {
+              this.showError(errorMsg, true)
+            }
+          } else {
+            this.showError(errorMessages.join(", "))
+          }
+        } else {
+          this.showError(data.message || data.errors?.join(", ") || "An error occurred")
+        }
         return
       }
 
@@ -177,10 +198,13 @@ export default class extends Controller {
     }
   }
 
-  showError(message) {
+  showError(message, showHelp = false) {
     this.hideAllContainers()
     if (this.hasErrorMessageTarget) {
       this.errorMessageTarget.textContent = message
+    }
+    if (this.hasErrorHelpTarget) {
+      this.errorHelpTarget.style.display = showHelp ? "block" : "none"
     }
     if (this.hasErrorTarget) {
       this.errorTarget.style.display = "block"
