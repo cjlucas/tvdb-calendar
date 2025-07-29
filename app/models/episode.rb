@@ -35,7 +35,8 @@ class Episode < ApplicationRecord
   def end_time_in_timezone(target_timezone = "America/New_York")
     return nil unless air_datetime_utc.present? && runtime_minutes.present?
     start_time = air_time_in_timezone(target_timezone)
-    start_time + runtime_minutes.minutes
+    raw_end_time = start_time + runtime_minutes.minutes
+    round_up_to_nearest_15_minutes(raw_end_time)
   end
 
   def has_specific_air_time?
@@ -53,5 +54,16 @@ class Episode < ApplicationRecord
 
   def self.ransackable_associations(auth_object = nil)
     [ "series", "users" ]
+  end
+
+  private
+
+  def round_up_to_nearest_15_minutes(time)
+    minutes = time.min
+    remainder = minutes % 15
+    return time if remainder == 0
+
+    minutes_to_add = 15 - remainder
+    time + minutes_to_add.minutes
   end
 end
