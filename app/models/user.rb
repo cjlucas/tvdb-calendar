@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   validates :pin, presence: true, uniqueness: true
+  validate :pin_must_be_valid_with_tvdb, on: :create
 
   has_many :user_series, dependent: :destroy
   has_many :series, through: :user_series
@@ -19,5 +20,25 @@ class User < ApplicationRecord
 
   def self.ransackable_associations(auth_object = nil)
     [ "episodes", "series", "user_series" ]
+  end
+
+  private
+
+  def pin_must_be_valid_with_tvdb
+    return if pin.blank?
+    # Skip validation in test environment if SKIP_PIN_VALIDATION is set
+    return if Rails.env.test? && ENV["SKIP_PIN_VALIDATION"] == "true"
+
+    client = tvdb_client
+    client.authenticate(pin)
+  rescue InvalidPinError
+    errors.add(:pin, "is invalid")
+  rescue => e
+    Rails.logger.error "TVDB API error during PIN validation: #{e.message}"
+    errors.add(:pin, "could not be validated - please try again")
+  end
+
+  def tvdb_client
+    TvdbClient.new
   end
 end
