@@ -195,6 +195,51 @@ class EpisodeTest < ActiveSupport::TestCase
     assert_equal "17:00", end_time.strftime("%H:%M") # 4 PM + 1 hour = 5 PM
   end
 
+  test "end_time_in_timezone should round up to nearest 15 minutes when runtime ends on exact quarter hour" do
+    utc_time = Time.parse("2025-07-21 20:00:00 UTC") # 4 PM EDT
+    @episode.air_datetime_utc = utc_time
+    @episode.runtime_minutes = 60 # Ends at 5:00 PM EDT
+
+    end_time = @episode.end_time_in_timezone("America/New_York")
+    assert_equal "17:00", end_time.strftime("%H:%M") # Should stay at 5:00 PM (no rounding needed)
+  end
+
+  test "end_time_in_timezone should round up to nearest 15 minutes when runtime ends between quarter hours" do
+    utc_time = Time.parse("2025-07-21 20:00:00 UTC") # 4 PM EDT
+    @episode.air_datetime_utc = utc_time
+    @episode.runtime_minutes = 22 # Ends at 4:22 PM EDT
+
+    end_time = @episode.end_time_in_timezone("America/New_York")
+    assert_equal "16:30", end_time.strftime("%H:%M") # Should round up to 4:30 PM
+  end
+
+  test "end_time_in_timezone should round up to nearest 15 minutes at 1 minute past quarter hour" do
+    utc_time = Time.parse("2025-07-21 20:00:00 UTC") # 4 PM EDT
+    @episode.air_datetime_utc = utc_time
+    @episode.runtime_minutes = 46 # Ends at 4:46 PM EDT
+
+    end_time = @episode.end_time_in_timezone("America/New_York")
+    assert_equal "17:00", end_time.strftime("%H:%M") # Should round up to 5:00 PM
+  end
+
+  test "end_time_in_timezone should round up to nearest 15 minutes at 14 minutes past quarter hour" do
+    utc_time = Time.parse("2025-07-21 20:00:00 UTC") # 4 PM EDT
+    @episode.air_datetime_utc = utc_time
+    @episode.runtime_minutes = 59 # Ends at 4:59 PM EDT
+
+    end_time = @episode.end_time_in_timezone("America/New_York")
+    assert_equal "17:00", end_time.strftime("%H:%M") # Should round up to 5:00 PM
+  end
+
+  test "end_time_in_timezone should handle rounding across hour boundaries" do
+    utc_time = Time.parse("2025-07-21 20:47:00 UTC") # 4:47 PM EDT
+    @episode.air_datetime_utc = utc_time
+    @episode.runtime_minutes = 25 # Ends at 5:12 PM EDT
+
+    end_time = @episode.end_time_in_timezone("America/New_York")
+    assert_equal "17:15", end_time.strftime("%H:%M") # Should round up to 5:15 PM
+  end
+
   test "runtime_duration should return nil when runtime_minutes is nil" do
     @episode.runtime_minutes = nil
     assert_nil @episode.runtime_duration
