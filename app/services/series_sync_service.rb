@@ -105,7 +105,7 @@ class SeriesSyncService
         local_time = source_tz.parse(time_str)
         return local_time.utc if local_time
       rescue => e
-        Rails.logger.warn "SeriesSyncService: Failed to parse air time '#{air_time}' for episode: #{e.message}"
+        Rails.logger.warn event: "air_time_parse_failed", air_time: air_time, error: e.message
       end
     end
 
@@ -121,7 +121,7 @@ class SeriesSyncService
         default_datetime = source_tz.parse("#{base_date} #{default_air_time}")
         return default_datetime.utc if default_datetime
       rescue => e
-        Rails.logger.warn "SeriesSyncService: Failed to parse default air time '#{default_air_time}': #{e.message}"
+        Rails.logger.warn event: "default_air_time_parse_failed", default_air_time: default_air_time, error: e.message
       end
     end
 

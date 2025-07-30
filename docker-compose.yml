@@ -52,6 +52,44 @@ services:
     command: ["./bin/jobs"]
     user: "1000:1000"
 
+  # Observability Stack
+  loki:
+    image: grafana/loki:3.0.0
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki_data:/tmp/loki
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./.observability/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./.observability/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./.observability/grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - loki
+
+  vector:
+    image: timberio/vector:0.38.0-alpine
+    volumes:
+      - ./.observability/vector/vector.toml:/etc/vector/vector.toml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - vector_data:/var/lib/vector
+    depends_on:
+      - loki
+    environment:
+      - VECTOR_CONFIG=/etc/vector/vector.toml
+
 volumes:
   postgres_data:
   bundle_cache:
+  loki_data:
+  grafana_data:
+  vector_data:

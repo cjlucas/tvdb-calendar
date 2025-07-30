@@ -6,7 +6,7 @@ class UserSyncService
   end
 
   def call
-    Rails.logger.info "UserSyncService: Starting sync for user ID #{@user.id}#{@force ? ' (forced)' : ''}"
+    Rails.logger.info event: "user_sync_started", user_id: @user.id, forced: @force
 
     # Authenticate with the user's PIN
     @client.authenticate(@user.pin)
@@ -15,7 +15,7 @@ class UserSyncService
     favorites = @client.get_user_favorites
     total_series = favorites.length
 
-    Rails.logger.info "UserSyncService: Found #{total_series} favorite series for user ID #{@user.id}"
+    Rails.logger.info event: "user_favorites_fetched", user_id: @user.id, series_count: total_series
 
     # Broadcast sync start
     broadcast_sync_progress(0, total_series, "Starting sync...")
@@ -24,7 +24,7 @@ class UserSyncService
       begin
         sync_series(series_id, index + 1, total_series)
       rescue => e
-        Rails.logger.error "UserSyncService: Failed to sync series #{series_id}: #{e.message}"
+        Rails.logger.error event: "series_sync_failed", user_id: @user.id, series_id: series_id, error: e.message
         broadcast_sync_progress(index + 1, total_series, "Error syncing series: #{e.message}")
       end
     end
@@ -35,7 +35,7 @@ class UserSyncService
     # Broadcast completion
     broadcast_sync_progress(total_series, total_series, "Sync completed!")
 
-    Rails.logger.info "UserSyncService: Completed sync for user ID #{@user.id}"
+    Rails.logger.info event: "user_sync_completed", user_id: @user.id, series_count: total_series
   end
 
   private
@@ -97,7 +97,7 @@ class UserSyncService
   def broadcast_sync_progress(current, total, message)
     percentage = total > 0 ? (current.to_f / total * 100).round : 0
 
-    Rails.logger.info "UserSyncService: Broadcasting progress - #{percentage}% (#{current}/#{total}) - #{message}"
+    Rails.logger.debug event: "sync_progress_broadcast", user_id: @user.id, percentage: percentage, current: current, total: total, message: message
 
     ActionCable.server.broadcast(
       "sync_#{@user.pin}",
@@ -109,6 +109,6 @@ class UserSyncService
       }
     )
 
-    Rails.logger.info "UserSyncService: Broadcast sent to channel sync_#{@user.pin}"
+    Rails.logger.debug event: "actioncable_broadcast_sent", channel: "sync_#{@user.pin}"
   end
 end

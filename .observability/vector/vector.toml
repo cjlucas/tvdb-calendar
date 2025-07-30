@@ -1,0 +1,89 @@
+[api]
+enabled = true
+address = "0.0.0.0:8686"
+
+# Rails application logs source
+[sources.app_logs]
+type = "docker_logs"
+include_containers = ["tvdb-calendar-app-1", "tvdb-calendar-jobs-1"]
+
+# PostgreSQL logs source
+[sources.postgres_logs]
+type = "docker_logs"
+include_containers = ["tvdb-calendar-postgres-1"]
+
+# Transform Docker logs to add metadata
+[transforms.add_metadata]
+type = "remap"
+inputs = ["app_logs"]
+source = '''
+  .service = .container_name
+  .timestamp = now()
+  
+  # Parse JSON logs from Rails (if they are JSON)
+  if is_string(.message) {
+    parsed, parse_err = parse_json(.message)
+    if parse_err == null && is_object(parsed) {
+      . = merge!(., parsed)
+      
+      # Extract fields from payload if it exists
+      if exists(.payload) && is_object(.payload) {
+        . = merge!(., .payload)
+      }
+    }
+  }
+  
+  # Add log level if not present
+  if !exists(.level) {
+    .level = "info"
+  }
+  
+  # Set event field - should be extracted from payload merge, fallback to default
+  if !exists(.event) {
+    .event = "application_log"
+  }
+  
+  # Extract request_id and job_id if present
+  if !exists(.request_id) {
+    .request_id = ""
+  }
+  if !exists(.job_id) {
+    .job_id = ""
+  }
+'''
+
+# Transform PostgreSQL logs
+[transforms.postgres_transform]
+type = "remap"
+inputs = ["postgres_logs"]
+source = '''
+  .service = "postgres"
+  .timestamp = now()
+  .level = "info"
+  .event = "database_log"
+  .log_type = "database"
+  .request_id = ""
+  .job_id = ""
+'''
+
+# Sink to Loki
+[sinks.loki]
+type = "loki"
+inputs = ["add_metadata", "postgres_transform"]
+endpoint = "http://loki:3100"
+encoding.codec = "json"
+out_of_order_action = "rewrite_timestamp"
+
+# Add labels for Loki
+[sinks.loki.labels]
+service = "{{ service }}"
+level = "{{ level }}"
+event = "{{ event }}"
+request_id = "{{ request_id }}"
+job_id = "{{ job_id }}"
+
+# Console output for debugging
+[sinks.console]
+type = "console"
+inputs = ["add_metadata", "postgres_transform"]
+encoding.codec = "json"

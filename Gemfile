@@ -76,3 +76,6 @@ gem "pry", "~> 0.15.2", group: :development
 gem "activeadmin"
 gem "sprockets-rails"  # Required for ActiveAdmin asset compilation
 gem "sassc-rails"      # SASS processor for Sprockets
+
+# Structured JSON logging
+gem "rails_semantic_logger"

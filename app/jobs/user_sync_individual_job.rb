@@ -3,11 +3,11 @@ class UserSyncIndividualJob < ApplicationJob
 
   def perform(user_pin, force: false)
     user = User.find_by!(pin: user_pin)
-    Rails.logger.info "UserSyncIndividualJob: Starting sync for user ID #{user.id}#{force ? ' (forced)' : ''}"
+    Rails.logger.info event: "individual_user_sync_started", user_id: user.id, forced: force
     UserSyncService.new(user, force: force).call
-    Rails.logger.info "UserSyncIndividualJob: Completed sync for user ID #{user.id}"
+    Rails.logger.info event: "individual_user_sync_completed", user_id: user.id
   rescue InvalidPinError => e
-    Rails.logger.error "UserSyncIndividualJob: Invalid PIN for user ID #{user&.id || 'unknown'}: #{e.message}"
+    Rails.logger.error event: "invalid_pin_error", user_id: user&.id, user_pin: user_pin, error: e.message
 
     # Broadcast specific error to user
     ActionCable.server.broadcast(
@@ -21,7 +21,7 @@ class UserSyncIndividualJob < ApplicationJob
       }
     )
   rescue => e
-    Rails.logger.error "UserSyncIndividualJob: Failed to sync user ID #{user&.id || 'unknown'}: #{e.message}"
+    Rails.logger.error event: "individual_sync_failed", user_id: user&.id, user_pin: user_pin, error: e.message
     Rails.logger.error e.backtrace.join("\n")
 
     # Broadcast error to user
