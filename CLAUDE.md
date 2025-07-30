@@ -79,6 +79,7 @@ The following specialized agents work together to implement your requests:
   - "commit and push"
 - **Exception**: Only commit/push when directly instructed by the developer
 - **Why**: Developers need control over their git history and when changes go to remote repositories
+- **IMPORTANT**: NEVER commit directly on the master branch. Before attempting to commit, make sure you're on a non-master branch. Create one if necessary.
 
 ## Custom Patterns
 
