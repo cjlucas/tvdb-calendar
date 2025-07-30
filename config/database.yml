@@ -18,19 +18,72 @@ postgresql: &postgresql
 
 development:
   primary:
-    <<: *default
-    database: storage/development.sqlite3
+    <<: *postgresql
+    database: tvdb_calendar_development
+    username: <%= ENV.fetch("DATABASE_USERNAME", "tvdbcalendar") %>
+    password: <%= ENV.fetch("DATABASE_PASSWORD", "tvdbcalendar") %>
+    host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+    port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
+  cache:
+    <<: *postgresql
+    database: tvdb_calendar_cache_development
+    username: <%= ENV.fetch("DATABASE_USERNAME", "tvdbcalendar") %>
+    password: <%= ENV.fetch("DATABASE_PASSWORD", "tvdbcalendar") %>
+    host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+    port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
+    migrations_paths: db/cache_migrate
   queue:
-    <<: *default
-    database: storage/development_queue.sqlite3
+    <<: *postgresql
+    database: tvdb_calendar_queue_development
+    username: <%= ENV.fetch("DATABASE_USERNAME", "tvdbcalendar") %>
+    password: <%= ENV.fetch("DATABASE_PASSWORD", "tvdbcalendar") %>
+    host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+    port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
     migrations_paths: db/queue_migrate
+  cable:
+    <<: *postgresql
+    database: tvdb_calendar_cable_development
+    username: <%= ENV.fetch("DATABASE_USERNAME", "tvdbcalendar") %>
+    password: <%= ENV.fetch("DATABASE_PASSWORD", "tvdbcalendar") %>
+    host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+    port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
+    migrations_paths: db/cable_migrate
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
-  <<: *default
-  database: storage/test.sqlite3
+  primary:
+    <<: *postgresql
+    database: tvdb_calendar_test
+    username: <%= ENV.fetch("DATABASE_USERNAME", "tvdbcalendar") %>
+    password: <%= ENV.fetch("DATABASE_PASSWORD", "tvdbcalendar") %>
+    host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+    port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
+  cache:
+    <<: *postgresql
+    database: tvdb_calendar_cache_test
+    username: <%= ENV.fetch("DATABASE_USERNAME", "tvdbcalendar") %>
+    password: <%= ENV.fetch("DATABASE_PASSWORD", "tvdbcalendar") %>
+    host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+    port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *postgresql
+    database: tvdb_calendar_queue_test
+    username: <%= ENV.fetch("DATABASE_USERNAME", "tvdbcalendar") %>
+    password: <%= ENV.fetch("DATABASE_PASSWORD", "tvdbcalendar") %>
+    host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+    port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *postgresql
+    database: tvdb_calendar_cable_test
+    username: <%= ENV.fetch("DATABASE_USERNAME", "tvdbcalendar") %>
+    password: <%= ENV.fetch("DATABASE_PASSWORD", "tvdbcalendar") %>
+    host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+    port: <%= ENV.fetch("DATABASE_PORT", 5432) %>
+    migrations_paths: db/cable_migrate
 
 
 # Production uses PostgreSQL with environment variables (with defaults for development)
