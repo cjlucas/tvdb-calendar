@@ -1,62 +1,84 @@
 class UsersController < ApplicationController
   def create
-    Rails.logger.info "UsersController#create: Starting user lookup"
+    TRACER.in_span('users_controller.create', attributes: {
+      'user.pin' => user_params[:pin],
+      'http.request_id' => request.request_id
+    }) do |span|
+      @user = User.find_or_initialize_by(pin: user_params[:pin])
 
-    @user = User.find_or_initialize_by(pin: user_params[:pin])
-
-    if @user.persisted?
-      Rails.logger.info "UsersController#create: Found existing user #{@user.id}"
-      # User already exists
-      if @user.needs_sync?
-        # User needs sync - start background sync and show progress
-        Rails.logger.info "UsersController#create: User needs sync, starting background job"
-        UserSyncIndividualJob.perform_later(@user.pin)
-        render json: {
-          status: "syncing",
-          user_pin: @user.pin,
-          calendar_url: user_calendar_url(@user.pin)
-        }
+      if @user.persisted?
+        span.set_attribute('user.status', 'existing')
+        span.set_attribute('user.id', @user.id)
+        
+        # User already exists
+        if @user.needs_sync?
+          # User needs sync - start background sync and show progress
+          span.set_attribute('sync.action', 'start_background_job')
+          
+          # Start the job and propagate trace context
+          UserSyncIndividualJob.perform_later_with_trace_context(@user.pin)
+          
+          render json: {
+            status: "syncing",
+            user_pin: @user.pin,
+            calendar_url: user_calendar_url(@user.pin)
+          }
+        else
+          # User is up to date - show calendar URL immediately
+          span.set_attribute('sync.action', 'up_to_date')
+          render json: {
+            status: "ready",
+            user_pin: @user.pin,
+            calendar_url: user_calendar_url(@user.pin)
+          }
+        end
       else
-        # User is up to date - show calendar URL immediately
-        Rails.logger.info "UsersController#create: User is up to date"
-        render json: {
-          status: "ready",
-          user_pin: @user.pin,
-          calendar_url: user_calendar_url(@user.pin)
-        }
-      end
-    else
-      # New user - create and start sync
-      Rails.logger.info "UsersController#create: Creating new user"
-      if @user.save
-        Rails.logger.info "UsersController#create: New user created with ID #{@user.id}, starting sync"
-        UserSyncIndividualJob.perform_later(@user.pin)
-        render json: {
-          status: "syncing",
-          user_pin: @user.pin,
-          calendar_url: user_calendar_url(@user.pin)
-        }
-      else
-        Rails.logger.error "UsersController#create: Failed to save user: #{@user.errors.full_messages}"
-        render json: {
-          status: "error",
-          errors: @user.errors.full_messages
-        }, status: :unprocessable_entity
+        # New user - create and start sync
+        span.set_attribute('user.status', 'new')
+        if @user.save
+          span.set_attribute('user.id', @user.id)
+          span.set_attribute('sync.action', 'start_background_job')
+          
+          # Start the job and propagate trace context
+          UserSyncIndividualJob.perform_later_with_trace_context(@user.pin)
+          
+          render json: {
+            status: "syncing",
+            user_pin: @user.pin,
+            calendar_url: user_calendar_url(@user.pin)
+          }
+        else
+          span.set_attribute('user.save_errors', @user.errors.full_messages.join(', '))
+          render json: {
+            status: "error",
+            errors: @user.errors.full_messages
+          }, status: :unprocessable_entity
+        end
       end
     end
   rescue InvalidPinError => e
-    Rails.logger.error "UsersController#create: Invalid PIN: #{e.message}"
-    render json: {
-      status: "error",
-      message: "PIN Invalid"
-    }, status: :unprocessable_entity
+    TRACER.in_span('users_controller.invalid_pin_error', attributes: {
+      'user.pin' => user_params[:pin],
+      'error.type' => 'InvalidPinError',
+      'http.request_id' => request.request_id
+    }) do |span|
+      span.record_exception(e)
+      render json: {
+        status: "error",
+        message: "PIN Invalid"
+      }, status: :unprocessable_entity
+    end
   rescue => e
-    Rails.logger.error "UsersController#create: Exception: #{e.message}"
-    Rails.logger.error e.backtrace.join("\n")
-    render json: {
-      status: "error",
-      message: "Failed to process request. Please check your PIN."
-    }, status: :unprocessable_entity
+    TRACER.in_span('users_controller.general_error', attributes: {
+      'user.pin' => user_params[:pin],
+      'http.request_id' => request.request_id
+    }) do |span|
+      span.record_exception(e)
+      render json: {
+        status: "error",
+        message: "Failed to process request. Please check your PIN."
+      }, status: :unprocessable_entity
+    end
   end
 
   private

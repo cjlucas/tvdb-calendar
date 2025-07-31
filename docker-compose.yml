@@ -1,0 +1,106 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: tvdbcalendar
+      POSTGRES_PASSWORD: tvdbcalendar
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tvdbcalendar"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+      RAILS_ENV: development
+      DATABASE_HOST: postgres
+      DATABASE_USERNAME: tvdbcalendar
+      DATABASE_PASSWORD: tvdbcalendar
+      OTEL_SERVICE_NAME: tvdb-calendar
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+    volumes:
+      - .:/rails
+      - bundle_cache:/usr/local/bundle
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+    stdin_open: true
+    tty: true
+
+  jobs:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+      RAILS_ENV: development
+      DATABASE_HOST: postgres
+      DATABASE_USERNAME: tvdbcalendar
+      DATABASE_PASSWORD: tvdbcalendar
+      OTEL_SERVICE_NAME: tvdb-calendar
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+    volumes:
+      - .:/rails
+      - bundle_cache:/usr/local/bundle
+    depends_on:
+      postgres:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+    command: ["./bin/jobs"]
+    user: "1000:1000"
+
+  # Observability Stack
+  tempo:
+    image: grafana/tempo:2.3.0
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./.observability/tempo/tempo.yaml:/etc/tempo.yaml:ro
+      - tempo_data:/tmp/tempo
+    ports:
+      - "3200:3200"   # tempo
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.91.0
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./.observability/otel/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+      - "8889:8889"   # Prometheus metrics
+    depends_on:
+      - tempo
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./.observability/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - ./.observability/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
+      - ./.observability/grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - tempo
+
+volumes:
+  postgres_data:
+  bundle_cache:
+  grafana_data:
+  tempo_data:

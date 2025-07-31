@@ -79,6 +79,7 @@ The following specialized agents work together to implement your requests:
   - "commit and push"
 - **Exception**: Only commit/push when directly instructed by the developer
 - **Why**: Developers need control over their git history and when changes go to remote repositories
+- **IMPORTANT**: NEVER commit directly on the master branch. Before attempting to commit, make sure you're on a non-master branch. Create one if necessary.
 
 ## Custom Patterns
 
@@ -134,6 +135,45 @@ Services:
   - **Workflow**: Code changes → `rubocop` → fix violations → `rails test` → verify pass → commit
   - **Why**: Maintains consistent code style and prevents broken code from entering the repository
   - **Critical**: Never commit code without passing lint and tests - this is non-negotiable
+
+## Docker Development Setup
+
+The project uses Docker Compose for local development to align with the production PostgreSQL environment.
+
+### Getting Started
+
+1. **Start the development environment:**
+   ```bash
+   docker-compose up
+   ```
+
+2. **Install gems and set up the database (first time only):**
+   ```bash
+   docker-compose run --rm app bundle install
+   docker-compose run --rm app rails db:create db:migrate db:seed
+   ```
+
+3. **Access the application:**
+   - Rails server: http://localhost:3000
+   - PostgreSQL: localhost:5432
+
+### Development Workflow
+
+- **Rails console:** `docker-compose run --rm app rails console`
+- **Run tests:** `docker-compose run --rm app rails test`
+- **Generate migrations:** `docker-compose run --rm app rails g migration MigrationName`
+- **Run migrations:** `docker-compose run --rm app rails db:migrate`
+- **Install gems:** Add to Gemfile, then `docker-compose run --rm app bundle install`
+
+### Services
+
+- **app**: Rails server (port 3000)
+- **jobs**: Background job processor (`bin/jobs`)
+- **postgres**: PostgreSQL 16 database (port 5432)
+
+### Hot Reloading
+
+Code changes are automatically reflected due to volume mounts. No container restart needed for most changes.
 
 ## Notes
 

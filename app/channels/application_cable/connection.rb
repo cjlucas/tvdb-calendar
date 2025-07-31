@@ -4,11 +4,15 @@ module ApplicationCable
     # identified_by :current_user
 
     def connect
-      Rails.logger.info "ActionCable: Connection established"
+      TRACER.in_span('actioncable.connection.connect') do |span|
+        span.set_attribute('actioncable.event', 'connection_established')
+      end
     end
 
     def disconnect
-      Rails.logger.info "ActionCable: Connection disconnected"
+      TRACER.in_span('actioncable.connection.disconnect') do |span|
+        span.set_attribute('actioncable.event', 'connection_disconnected')
+      end
     end
   end
 end
