@@ -1,7 +1,8 @@
 class UsersController < ApplicationController
   def create
     TRACER.in_span('users_controller.create', attributes: {
-      'user.pin' => user_params[:pin]
+      'user.pin' => user_params[:pin],
+      'http.request_id' => request.request_id
     }) do |span|
       @user = User.find_or_initialize_by(pin: user_params[:pin])
 
@@ -58,7 +59,8 @@ class UsersController < ApplicationController
   rescue InvalidPinError => e
     TRACER.in_span('users_controller.invalid_pin_error', attributes: {
       'user.pin' => user_params[:pin],
-      'error.type' => 'InvalidPinError'
+      'error.type' => 'InvalidPinError',
+      'http.request_id' => request.request_id
     }) do |span|
       span.record_exception(e)
       render json: {
@@ -68,7 +70,8 @@ class UsersController < ApplicationController
     end
   rescue => e
     TRACER.in_span('users_controller.general_error', attributes: {
-      'user.pin' => user_params[:pin]
+      'user.pin' => user_params[:pin],
+      'http.request_id' => request.request_id
     }) do |span|
       span.record_exception(e)
       render json: {

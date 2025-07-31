@@ -25,27 +25,23 @@
     {
       "datasource": "Tempo",
       "gridPos": {
-        "h": 6,
+        "h": 8,
         "w": 24,
         "x": 0,
         "y": 0
       },
       "id": 1,
-      "options": {
-        "query": "",
-        "serviceName": "",
-        "spanName": "",
-        "tags": ""
-      },
+      "options": {},
       "targets": [
         {
           "datasource": "Tempo",
+          "query": "{ .service.name = \\\"tvdb-calendar\\\" }",
           "queryType": "traceql",
           "refId": "A"
         }
       ],
-      "title": "Trace Search",
-      "type": "tempo-search"
+      "title": "Trace Search Results",
+      "type": "traces"
     },
     {
       "datasource": "Tempo",
@@ -122,8 +118,8 @@
       "targets": [
         {
           "datasource": "Tempo",
-          "query": "rate(traces_service_graph_request_total{service_name=\"tvdb-calendar\"}[5m])",
-          "queryType": "metrics",
+          "query": "{ .service.name = \"tvdb-calendar\" }",
+          "queryType": "traceql",
           "refId": "A"
         }
       ],
@@ -190,8 +186,8 @@
       "targets": [
         {
           "datasource": "Tempo",
-          "query": "sum by (status_code) (rate(traces_service_graph_request_total{service_name=\"tvdb-calendar\"}[5m]))",
-          "queryType": "metrics",
+          "query": "{ .service.name = \"tvdb-calendar\" }",
+          "queryType": "traceql",
           "refId": "A"
         }
       ],
@@ -207,20 +203,17 @@
         "y": 14
       },
       "id": 4,
-      "options": {
-        "query": "{service.name=\"tvdb-calendar\"} | by(trace_id)",
-        "tags": ""
-      },
+      "options": {},
       "targets": [
         {
           "datasource": "Tempo",
-          "query": "{service.name=\"tvdb-calendar\" && name=~\"user.*\"} | by(trace_id)",
+          "query": "{ .service.name = \"tvdb-calendar\" }",
           "queryType": "traceql",
           "refId": "A"
         }
       ],
-      "title": "Recent Traces",
-      "type": "tempo-list"
+      "title": "Recent Traces (All)",
+      "type": "traces"
     }
   ],
   "refresh": "5s",
@@ -261,6 +254,26 @@
         "hide": 0,
         "label": "User PIN",
         "name": "user_pin",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "label": "Request ID",
+        "name": "request_id",
         "options": [
           {
             "selected": true,
