@@ -77,5 +77,7 @@ gem "activeadmin"
 gem "sprockets-rails"  # Required for ActiveAdmin asset compilation
 gem "sassc-rails"      # SASS processor for Sprockets
 
-# Structured JSON logging
-gem "rails_semantic_logger"
+# OpenTelemetry for distributed tracing
+gem "opentelemetry-sdk"
+gem "opentelemetry-exporter-otlp"
+gem "opentelemetry-instrumentation-all"

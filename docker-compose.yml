@@ -23,6 +23,9 @@ services:
       DATABASE_HOST: postgres
       DATABASE_USERNAME: tvdbcalendar
       DATABASE_PASSWORD: tvdbcalendar
+      OTEL_SERVICE_NAME: tvdb-calendar
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
     volumes:
       - .:/rails
       - bundle_cache:/usr/local/bundle
@@ -31,6 +34,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      otel-collector:
+        condition: service_started
     stdin_open: true
     tty: true
 
@@ -43,23 +48,41 @@ services:
       DATABASE_HOST: postgres
       DATABASE_USERNAME: tvdbcalendar
       DATABASE_PASSWORD: tvdbcalendar
+      OTEL_SERVICE_NAME: tvdb-calendar
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
     volumes:
       - .:/rails
       - bundle_cache:/usr/local/bundle
     depends_on:
       postgres:
         condition: service_healthy
+      otel-collector:
+        condition: service_started
     command: ["./bin/jobs"]
     user: "1000:1000"
 
   # Observability Stack
-  loki:
-    image: grafana/loki:3.0.0
-    ports:
-      - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
+  tempo:
+    image: grafana/tempo:2.3.0
+    command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
-      - loki_data:/tmp/loki
+      - ./.observability/tempo/tempo.yaml:/etc/tempo.yaml:ro
+      - tempo_data:/tmp/tempo
+    ports:
+      - "3200:3200"   # tempo
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.91.0
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./.observability/otel/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+      - "8889:8889"   # Prometheus metrics
+    depends_on:
+      - tempo
 
   grafana:
     image: grafana/grafana:10.4.0
@@ -74,22 +97,10 @@ services:
       - ./.observability/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml
       - ./.observability/grafana/dashboards:/var/lib/grafana/dashboards
     depends_on:
-      - loki
-
-  vector:
-    image: timberio/vector:0.38.0-alpine
-    volumes:
-      - ./.observability/vector/vector.toml:/etc/vector/vector.toml:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - vector_data:/var/lib/vector
-    depends_on:
-      - loki
-    environment:
-      - VECTOR_CONFIG=/etc/vector/vector.toml
+      - tempo
 
 volumes:
   postgres_data:
   bundle_cache:
-  loki_data:
   grafana_data:
-  vector_data:
+  tempo_data:

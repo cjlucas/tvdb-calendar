@@ -2,12 +2,19 @@ class SyncChannel < ApplicationCable::Channel
   def subscribed
     user_pin = params[:user_pin]
     channel_name = "sync_#{user_pin}"
-    stream_from channel_name
-    Rails.logger.info "SyncChannel: User subscribed to channel: #{channel_name}"
-    Rails.logger.info "SyncChannel: Current subscriber count: #{ActionCable.server.connections.count}"
+    
+    TRACER.in_span('sync_channel.subscribed', attributes: {
+      'user.pin' => user_pin,
+      'channel.name' => channel_name
+    }) do |span|
+      stream_from channel_name
+      span.set_attribute('actioncable.connections_count', ActionCable.server.connections.count)
+    end
   end
 
   def unsubscribed
-    Rails.logger.info "SyncChannel: User unsubscribed from sync updates"
+    TRACER.in_span('sync_channel.unsubscribed') do |span|
+      span.set_attribute('actioncable.event', 'user_unsubscribed')
+    end
   end
 end

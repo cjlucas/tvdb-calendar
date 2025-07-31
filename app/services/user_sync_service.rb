@@ -6,36 +6,41 @@ class UserSyncService
   end
 
   def call
-    Rails.logger.info event: "user_sync_started", user_id: @user.id, forced: @force
+    TRACER.in_span('user_sync', attributes: {
+      'user.id' => @user.id,
+      'user.pin' => @user.pin,
+      'sync.forced' => @force
+    }) do |span|
+      # Authenticate with the user's PIN
+      @client.authenticate(@user.pin)
 
-    # Authenticate with the user's PIN
-    @client.authenticate(@user.pin)
+      # Get user's favorite series
+      favorites = @client.get_user_favorites
+      total_series = favorites.length
 
-    # Get user's favorite series
-    favorites = @client.get_user_favorites
-    total_series = favorites.length
+      span.set_attribute('favorites.count', total_series)
 
-    Rails.logger.info event: "user_favorites_fetched", user_id: @user.id, series_count: total_series
+      # Broadcast sync start
+      broadcast_sync_progress(0, total_series, "Starting sync...")
 
-    # Broadcast sync start
-    broadcast_sync_progress(0, total_series, "Starting sync...")
-
-    favorites.each_with_index do |series_id, index|
-      begin
-        sync_series(series_id, index + 1, total_series)
-      rescue => e
-        Rails.logger.error event: "series_sync_failed", user_id: @user.id, series_id: series_id, error: e.message
-        broadcast_sync_progress(index + 1, total_series, "Error syncing series: #{e.message}")
+      favorites.each_with_index do |series_id, index|
+        begin
+          sync_series(series_id, index + 1, total_series)
+        rescue => e
+          span.record_exception(e)
+          span.set_attribute('error.series_id', series_id)
+          broadcast_sync_progress(index + 1, total_series, "Error syncing series: #{e.message}")
+        end
       end
+
+      # Mark user as synced
+      @user.mark_as_synced!
+
+      # Broadcast completion
+      broadcast_sync_progress(total_series, total_series, "Sync completed!")
+
+      span.set_attribute('sync.result', 'success')
     end
-
-    # Mark user as synced
-    @user.mark_as_synced!
-
-    # Broadcast completion
-    broadcast_sync_progress(total_series, total_series, "Sync completed!")
-
-    Rails.logger.info event: "user_sync_completed", user_id: @user.id, series_count: total_series
   end
 
   private
@@ -97,18 +102,24 @@ class UserSyncService
   def broadcast_sync_progress(current, total, message)
     percentage = total > 0 ? (current.to_f / total * 100).round : 0
 
-    Rails.logger.debug event: "sync_progress_broadcast", user_id: @user.id, percentage: percentage, current: current, total: total, message: message
+    TRACER.in_span('sync_progress_broadcast', attributes: {
+      'user.id' => @user.id,
+      'sync.current' => current,
+      'sync.total' => total,
+      'sync.percentage' => percentage,
+      'sync.message' => message
+    }) do |span|
+      ActionCable.server.broadcast(
+        "sync_#{@user.pin}",
+        {
+          current: current,
+          total: total,
+          percentage: percentage,
+          message: message
+        }
+      )
 
-    ActionCable.server.broadcast(
-      "sync_#{@user.pin}",
-      {
-        current: current,
-        total: total,
-        percentage: percentage,
-        message: message
-      }
-    )
-
-    Rails.logger.debug event: "actioncable_broadcast_sent", channel: "sync_#{@user.pin}"
+      span.set_attribute('broadcast.channel', "sync_#{@user.pin}")
+    end
   end
 end
