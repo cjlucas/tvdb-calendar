@@ -27,14 +27,7 @@ Your TheTVDB API key for accessing the TVDB API.
 2. Go to Account → API Access
 3. Create a new API key
 
-### 3. ActiveAdmin Authentication (New!)
-**Required for accessing the admin interface at `/admin`:**
-- `ADMIN_USERNAME` - Username for admin login
-- `ADMIN_PASSWORD` - Password for admin login
-
-**Note:** Admin authentication is only required in production. Development bypasses authentication entirely.
-
-### 4. PostgreSQL Database Configuration
+### 3. PostgreSQL Database Configuration
 
 **Recommended for production (with development defaults):**
 - `DATABASE_HOST` - PostgreSQL host (default: `localhost`)
@@ -50,7 +43,7 @@ The application will create and use these specific database names:
 - `tvdb_calendar_queue_production` - Background job queue
 - `tvdb_calendar_cable_production` - WebSocket connections
 
-### 5. Optional Environment Variables
+### 4. Optional Environment Variables
 - `RAILS_LOG_LEVEL`: Set logging level (default: `info`, options: `debug`, `info`, `warn`, `error`)
 - `RAILS_MAX_THREADS`: Maximum number of threads (default: `5`)
 
@@ -71,8 +64,6 @@ docker run -d \
   -p 3000:80 \
   -e SECRET_KEY_BASE=your_secret_key_base_here \
   -e TVDB_API_KEY=your_tvdb_api_key_here \
-  -e ADMIN_USERNAME=your_admin_username \
-  -e ADMIN_PASSWORD=your_admin_password \
   -e DATABASE_HOST=your_postgres_host \
   -e DATABASE_PORT=5432 \
   -e DATABASE_USERNAME=your_postgres_user \
@@ -111,8 +102,6 @@ services:
     environment:
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - TVDB_API_KEY=${TVDB_API_KEY}
-      - ADMIN_USERNAME=${ADMIN_USERNAME}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - DATABASE_HOST=postgres
       - DATABASE_PORT=5432
       - DATABASE_USERNAME=tvdb_calendar
@@ -136,8 +125,6 @@ Create a `.env` file:
 ```bash
 SECRET_KEY_BASE=your_secret_key_base_here
 TVDB_API_KEY=your_tvdb_api_key_here
-ADMIN_USERNAME=your_admin_username_here
-ADMIN_PASSWORD=your_admin_password_here
 DATABASE_PASSWORD=your_postgres_password_here
 ```
 
@@ -160,8 +147,6 @@ type: Opaque
 data:
   secret-key-base: <base64-encoded-secret-key-base>
   tvdb-api-key: <base64-encoded-api-key>
-  admin-username: <base64-encoded-admin-username>
-  admin-password: <base64-encoded-admin-password>
 
 ---
 # tvdb-calendar-deployment.yaml
@@ -195,16 +180,6 @@ spec:
             secretKeyRef:
               name: tvdb-calendar-secrets
               key: tvdb-api-key
-        - name: ADMIN_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: tvdb-calendar-secrets
-              key: admin-username
-        - name: ADMIN_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: tvdb-calendar-secrets
-              key: admin-password
         volumeMounts:
         - name: storage
           mountPath: /rails/storage
@@ -267,7 +242,6 @@ The application includes built-in Rails performance monitoring. Access logs prov
 **Container won't start:**
 - Check that `SECRET_KEY_BASE` is set correctly
 - Verify `TVDB_API_KEY` is valid
-- Ensure `ADMIN_USERNAME` and `ADMIN_PASSWORD` are set for admin access
 - Ensure `DATABASE_PASSWORD` is set and PostgreSQL is accessible
 - Check container logs: `docker logs tvdb-calendar`
 
@@ -285,12 +259,6 @@ The application includes built-in Rails performance monitoring. Access logs prov
 **API errors:**
 - Verify your TVDB API key is active and valid
 - Check TVDB API status: https://status.thetvdb.com/
-
-**Admin interface access:**
-- Admin interface is available at `/admin` (e.g., `https://yourdomain.com/admin`)
-- Use the credentials set in `ADMIN_USERNAME` and `ADMIN_PASSWORD`
-- In development, no authentication is required
-- Admin interface shows environment-specific header colors (red for production, blue for development)
 
 ### Support
 
