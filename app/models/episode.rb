@@ -47,4 +47,15 @@ class Episode < ApplicationRecord
     return nil unless runtime_minutes.present?
     runtime_minutes.minutes
   end
+
+  private
+
+  def round_up_to_nearest_15_minutes(time)
+    minutes = time.min
+    remainder = minutes % 15
+    return time if remainder == 0
+
+    minutes_to_add = 15 - remainder
+    time + minutes_to_add.minutes
+  end
 end

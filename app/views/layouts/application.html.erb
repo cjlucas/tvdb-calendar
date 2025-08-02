@@ -23,6 +23,13 @@
   </head>
 
   <body>
-    <%= yield %>
+    <main class="container mx-auto mt-28 px-5 flex">
+      <%= yield %>
+    </main>
+    <% if app_version.present? %>
+      <footer class="fixed bottom-0 right-0 text-xs text-gray-400 p-2">
+        <%= app_version %>
+      </footer>
+    <% end %>
   </body>
 </html>

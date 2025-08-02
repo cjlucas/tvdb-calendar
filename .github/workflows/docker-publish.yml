@@ -41,17 +41,37 @@ jobs:
           tags: |
             type=ref,event=tag
             type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,format=short
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        run: |
+          TAGS="${{ steps.meta.outputs.tags }}"
+          LABELS="${{ steps.meta.outputs.labels }}"
+          
+          # Convert newline-separated tags to multiple --tag arguments
+          TAG_ARGS=""
+          while IFS= read -r tag; do
+            if [ -n "$tag" ]; then
+              TAG_ARGS="$TAG_ARGS --tag $tag"
+            fi
+          done <<< "$TAGS"
+          
+          # Convert newline-separated labels to multiple --label arguments  
+          LABEL_ARGS=""
+          while IFS= read -r label; do
+            if [ -n "$label" ]; then
+              LABEL_ARGS="$LABEL_ARGS --label $label"
+            fi
+          done <<< "$LABELS"
+          
+          ./bin/docker-build \
+            --platform linux/amd64,linux/arm64 \
+            --push \
+            $TAG_ARGS \
+            $LABEL_ARGS \
+            --cache-from type=gha \
+            --cache-to type=gha,mode=max \
+            .
 
       - name: Generate image summary
         run: |
@@ -65,9 +85,15 @@ jobs:
             echo "- \`$tag\`" >> $GITHUB_STEP_SUMMARY
           done
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Version format:** Simple X.Y format (e.g., 1.0, 2.1, 10.5)" >> $GITHUB_STEP_SUMMARY
+          echo "**Version format:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Release tags: X.Y format (e.g., 1.0, 2.1, 10.5)" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit hash: Short SHA for specific versions" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Pull command:**" >> $GITHUB_STEP_SUMMARY
+          echo "**Pull commands:**" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# Latest version" >> $GITHUB_STEP_SUMMARY
           echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Specific commit (replace SHA with actual commit hash)" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:a4e1dc5" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

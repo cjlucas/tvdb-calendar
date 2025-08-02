@@ -9,7 +9,11 @@
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=3.2.2
+ARG APP_VERSION
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
+
+# Redeclare ARG after FROM to make it available in this stage
+ARG APP_VERSION
 
 # Rails app lives here
 WORKDIR /rails
@@ -25,7 +29,8 @@ ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
     BUNDLE_WITHOUT="development" \
-    ALLOWED_HOSTS=""
+    ALLOWED_HOSTS="" \
+    APP_VERSION="${APP_VERSION}"
 
 # Throw-away build stage to reduce size of final image
 FROM base AS build
