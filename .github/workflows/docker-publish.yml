@@ -43,15 +43,34 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        run: |
+          TAGS="${{ steps.meta.outputs.tags }}"
+          LABELS="${{ steps.meta.outputs.labels }}"
+          
+          # Convert newline-separated tags to multiple --tag arguments
+          TAG_ARGS=""
+          while IFS= read -r tag; do
+            if [ -n "$tag" ]; then
+              TAG_ARGS="$TAG_ARGS --tag $tag"
+            fi
+          done <<< "$TAGS"
+          
+          # Convert newline-separated labels to multiple --label arguments  
+          LABEL_ARGS=""
+          while IFS= read -r label; do
+            if [ -n "$label" ]; then
+              LABEL_ARGS="$LABEL_ARGS --label $label"
+            fi
+          done <<< "$LABELS"
+          
+          ./bin/docker-build \
+            --platform linux/amd64,linux/arm64 \
+            --push \
+            $TAG_ARGS \
+            $LABEL_ARGS \
+            --cache-from type=gha \
+            --cache-to type=gha,mode=max \
+            .
 
       - name: Generate image summary
         run: |

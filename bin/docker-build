@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Get the git commit hash
+APP_VERSION=$(git rev-parse --short HEAD)
+
+# Use buildx if available, otherwise fall back to regular build
+if command -v docker buildx >/dev/null 2>&1; then
+  DOCKER_CMD="docker buildx build"
+else
+  DOCKER_CMD="docker build"
+fi
+
+# Build the Docker image with APP_VERSION build arg
+$DOCKER_CMD \
+  --build-arg APP_VERSION="$APP_VERSION" \
+  "$@"
+
+echo "Built Docker image with APP_VERSION: $APP_VERSION"
