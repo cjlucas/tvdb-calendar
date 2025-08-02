@@ -11,6 +11,7 @@ on:
       - 'app/**'
       - 'lib/**'
       - '.github/workflows/docker-build-check.yml'
+      - '.github/workflows/docker-publish.yml'
 
 jobs:
   docker-build:
