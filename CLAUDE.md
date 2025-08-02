@@ -58,6 +58,30 @@ The following specialized agents work together to implement your requests:
   - Auto-fix all: `rubocop -A` (includes unsafe corrections)
 - **Workflow**: Code changes → `rubocop` → fix violations → commit
 
+#### Common RuboCop Violations to Avoid
+Write code that follows these rules from the start to avoid lint fixes:
+
+1. **String Literals** (`Style/StringLiterals`)
+   - Use double-quoted strings: `"series.id"` not `'series.id'`
+   - Exception: Use single quotes only to avoid escaping
+
+2. **Trailing Empty Lines** (`Layout/TrailingEmptyLines`)
+   - Files must end with exactly one newline
+   - Always add `\n` at end of files
+
+3. **Array Bracket Spacing** (`Layout/SpaceInsideArrayLiteralBrackets`)
+   - No spaces inside brackets: `[:password, :email]` 
+   - Not: `[ :password, :email ]`
+
+4. **Method Length** (`Metrics/MethodLength`)
+   - Keep methods under 10-15 lines typically
+
+5. **Line Length** (`Layout/LineLength`)
+   - Keep lines under 120 characters
+
+6. **Hash Syntax** (`Style/HashSyntax`)
+   - Use new syntax: `{ key: value }` not `{ :key => value }`
+
 ### Testing
 - Minitest for all tests
 - Fixtures or factories for test data
