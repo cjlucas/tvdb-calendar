@@ -12,6 +12,9 @@ ARG RUBY_VERSION=3.2.2
 ARG APP_VERSION
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
+# Redeclare ARG after FROM to make it available in this stage
+ARG APP_VERSION
+
 # Rails app lives here
 WORKDIR /rails
 
