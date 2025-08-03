@@ -10,6 +10,30 @@ This project uses ClaudeOnRails to create an intelligent swarm of AI agents spec
 - **Type**: Full-stack Rails application
 - **Test Framework**: Minitest
 
+## 🚨 MANDATORY PRE-COMMIT CHECKLIST 🚨
+
+**BEFORE EVERY SINGLE COMMIT, YOU MUST:**
+
+1. **✅ RUN LINTING**: Execute `rubocop` and fix ALL violations
+   - Zero tolerance policy - fix every single violation
+   - Use `rubocop -a` for safe auto-fixes, `rubocop -A` for all fixes
+
+2. **✅ RUN TESTS**: Execute `rails test` and verify ALL tests pass
+   - 0 failures, 0 errors required
+   - If tests fail, fix the issues before committing
+
+3. **✅ STAGE FILES**: Check `git status` and stage appropriate files
+   - Review what you're committing with `git diff --staged`
+
+4. **✅ COMMIT MESSAGE**: Write clear, descriptive commit message
+   - Include the Claude Code footer format
+
+5. **✅ ONLY THEN**: Commit and push your changes
+
+**❌ NEVER COMMIT WITHOUT COMPLETING ALL 5 STEPS ❌**
+
+This checklist is **NON-NEGOTIABLE** and must be followed for every commit.
+
 ## How to Use
 
 Simply describe what you want to build or fix, and the swarm will automatically coordinate the implementation:
@@ -163,6 +187,7 @@ Services:
   - **Critical**: Never commit backend changes without tests - this is non-negotiable
 
 - **Code Quality**: ALWAYS run linting and tests before committing ANY code
+  - **⚠️ SEE MANDATORY PRE-COMMIT CHECKLIST ABOVE** - This is the definitive workflow
   - **Linting**: MANDATORY `rubocop` check before every commit - fix ALL violations
   - **Testing**: ALL tests must pass before committing - no exceptions
   - **Workflow**: Code changes → `rubocop` → fix violations → `rails test` → verify pass → commit
