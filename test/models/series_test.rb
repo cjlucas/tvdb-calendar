@@ -2,7 +2,7 @@ require "test_helper"
 
 class SeriesTest < ActiveSupport::TestCase
   def setup
-    @user = User.create!(pin: "series_test_#{rand(100000..999999)}")
+    @user = User.create!(pin: "series_test_#{rand(100000..999999)}", uuid: SecureRandom.uuid_v7)
     @tvdb_id = rand(100000..999999)
     @series = Series.new(
       tvdb_id: @tvdb_id,
@@ -59,7 +59,7 @@ class SeriesTest < ActiveSupport::TestCase
     @series.save!
     @user.user_series.create!(series: @series)
 
-    other_user = User.create!(pin: "other_#{rand(100000..999999)}")
+    other_user = User.create!(pin: "other_#{rand(100000..999999)}", uuid: SecureRandom.uuid_v7)
     other_user.user_series.create!(series: @series)
 
     assert_includes @series.users, @user

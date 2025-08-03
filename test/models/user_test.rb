@@ -2,7 +2,7 @@ require "test_helper"
 
 class UserTest < ActiveSupport::TestCase
   def setup
-    @user = User.new(pin: "user_test_#{rand(100000..999999)}")
+    @user = User.new(pin: "user_test_#{rand(100000..999999)}", uuid: SecureRandom.uuid_v7)
   end
 
   test "should be valid with valid attributes" do
@@ -17,7 +17,7 @@ class UserTest < ActiveSupport::TestCase
 
   test "should require unique pin" do
     pin = "unique_test_#{rand(100000..999999)}"
-    existing_user = User.create!(pin: pin)
+    existing_user = User.create!(pin: pin, uuid: SecureRandom.uuid_v7)
     duplicate_user = User.new(pin: pin)
     assert_not duplicate_user.valid?
     assert_includes duplicate_user.errors[:pin], "has already been taken"
@@ -37,17 +37,17 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "needs_sync? should return true for user not synced in over an hour" do
-    user = User.create!(pin: "old_sync_#{rand(100000..999999)}", last_synced_at: 2.hours.ago)
+    user = User.create!(pin: "old_sync_#{rand(100000..999999)}", uuid: SecureRandom.uuid_v7, last_synced_at: 2.hours.ago)
     assert user.needs_sync?
   end
 
   test "needs_sync? should return false for recently synced user" do
-    user = User.create!(pin: "recent_sync_#{rand(100000..999999)}", last_synced_at: 30.minutes.ago)
+    user = User.create!(pin: "recent_sync_#{rand(100000..999999)}", uuid: SecureRandom.uuid_v7, last_synced_at: 30.minutes.ago)
     assert_not user.needs_sync?
   end
 
   test "mark_as_synced! should update last_synced_at" do
-    user = User.create!(pin: "mark_sync_#{rand(100000..999999)}")
+    user = User.create!(pin: "mark_sync_#{rand(100000..999999)}", uuid: SecureRandom.uuid_v7)
     before_time = Time.current
 
     user.mark_as_synced!

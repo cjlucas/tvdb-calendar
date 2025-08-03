@@ -2,7 +2,7 @@ require "test_helper"
 
 class CalendarControllerTest < ActionDispatch::IntegrationTest
   def setup
-    @user = User.create!(pin: "calendar_test_#{rand(100000..999999)}")
+    @user = User.create!(pin: "calendar_test_#{rand(100000..999999)}", uuid: SecureRandom.uuid_v7)
     @series = Series.create!(
       tvdb_id: rand(100000..999999),
       name: "Test Series",
@@ -19,7 +19,7 @@ class CalendarControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should generate ICS calendar" do
-    get user_calendar_path(@user.pin)
+    get user_calendar_path(@user.uuid)
 
     assert_response :success
     assert_equal "text/calendar; charset=utf-8", response.content_type
@@ -32,14 +32,14 @@ class CalendarControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should serve ICS with proper filename" do
-    get user_calendar_path(@user.pin), headers: { "Accept" => "text/calendar" }
+    get user_calendar_path(@user.uuid), headers: { "Accept" => "text/calendar" }
 
     assert_response :success
-    assert_includes response.headers["Content-Disposition"], "tvdb-calendar-#{@user.pin}.ics"
+    assert_includes response.headers["Content-Disposition"], "tvdb-calendar-#{@user.uuid}.ics"
   end
 
   test "should return 404 for non-existent user" do
-    get user_calendar_path("nonexistent")
+    get user_calendar_path("nonexistent-uuid")
 
     assert_response :not_found
     assert_equal "User not found", response.body
@@ -48,7 +48,7 @@ class CalendarControllerTest < ActionDispatch::IntegrationTest
   test "should handle empty episode list" do
     @episode.destroy
 
-    get user_calendar_path(@user.pin)
+    get user_calendar_path(@user.uuid)
 
     assert_response :success
     calendar_content = response.body

@@ -2,7 +2,7 @@ require "test_helper"
 
 class EpisodeTest < ActiveSupport::TestCase
   def setup
-    @user = User.create!(pin: "episode_test_#{rand(100000..999999)}")
+    @user = User.create!(pin: "episode_test_#{rand(100000..999999)}", uuid: SecureRandom.uuid_v7)
     @series = Series.create!(
       tvdb_id: rand(100000..999999),
       name: "Test Series"

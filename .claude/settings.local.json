@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rubocop:*)",
+      "Bash(rails test)"
+    ],
+    "deny": []
+  }
+}

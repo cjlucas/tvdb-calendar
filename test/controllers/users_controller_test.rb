@@ -19,7 +19,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
   test "should handle existing user needing sync" do
     pin = "existing_user_#{rand(100000..999999)}"
-    user = User.create!(pin: pin, last_synced_at: 2.hours.ago)
+    user = User.create!(pin: pin, uuid: SecureRandom.uuid_v7, last_synced_at: 2.hours.ago)
 
     post users_path, params: { user: { pin: pin } }, as: :json
 
@@ -32,7 +32,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
   test "should handle existing user not needing sync" do
     pin = "ready_user_#{rand(100000..999999)}"
-    user = User.create!(pin: pin, last_synced_at: 30.minutes.ago)
+    user = User.create!(pin: pin, uuid: SecureRandom.uuid_v7, last_synced_at: 30.minutes.ago)
 
     post users_path, params: { user: { pin: pin } }, as: :json
 
