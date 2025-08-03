@@ -18,7 +18,7 @@ class UserTest < ActiveSupport::TestCase
   test "should require unique pin" do
     pin = "unique_test_#{rand(100000..999999)}"
     existing_user = create(:user, pin: pin)
-    duplicate_user = User.new(pin: pin)
+    duplicate_user = build(:user, pin: pin)
     assert_not duplicate_user.valid?
     assert_includes duplicate_user.errors[:pin], "has already been taken"
   end

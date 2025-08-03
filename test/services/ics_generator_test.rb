@@ -24,13 +24,7 @@ class IcsGeneratorTest < ActiveSupport::TestCase
   end
 
   test "should include upcoming episodes only" do
-    past_episode = Episode.create!(
-      series: @series,
-      title: "Past Episode",
-      season_number: 1,
-      episode_number: 1,
-      air_date: Date.current - 1.day
-    )
+    past_episode = create(:episode, :aired, series: @series, title: "Past Episode", episode_number: 1)
 
     ics_content = @generator.generate
 
@@ -99,13 +93,7 @@ class IcsGeneratorTest < ActiveSupport::TestCase
   end
 
   test "should generate unique UIDs for episodes" do
-    second_episode = Episode.create!(
-      series: @series,
-      title: "Another Episode",
-      season_number: 1,
-      episode_number: 6,
-      air_date: Date.current + 2.days
-    )
+    second_episode = create(:episode, series: @series, title: "Another Episode", episode_number: 6, air_date: Date.current + 2.days)
 
     ics_content = @generator.generate
 
@@ -189,25 +177,10 @@ class IcsGeneratorTest < ActiveSupport::TestCase
 
   test "should handle mixed episodes with and without air times" do
     # Episode with specific time
-    timed_episode = Episode.create!(
-      series: @series,
-      title: "Timed Episode",
-      season_number: 1,
-      episode_number: 10,
-      air_date: Date.current + 2.days,
-      air_datetime_utc: Time.parse("2025-07-21 20:00:00 UTC"),
-      runtime_minutes: 45
-    )
+    timed_episode = create(:episode, series: @series, title: "Timed Episode", episode_number: 10, air_date: Date.current + 2.days, air_datetime_utc: Time.parse("2025-07-21 20:00:00 UTC"), runtime_minutes: 45)
 
     # Episode without specific time (all-day)
-    allday_episode = Episode.create!(
-      series: @series,
-      title: "All Day Episode",
-      season_number: 1,
-      episode_number: 11,
-      air_date: Date.current + 3.days,
-      air_datetime_utc: nil
-    )
+    allday_episode = create(:episode, series: @series, title: "All Day Episode", episode_number: 11, air_date: Date.current + 3.days, air_datetime_utc: nil)
 
     ics_content = @generator.generate
 
