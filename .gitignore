@@ -36,9 +36,6 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
-# ClaudeOnRails
-.claude-on-rails/sessions/
-swarm.log
 
 # Claude Code local memory
 CLAUDE.local.md

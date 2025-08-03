@@ -69,7 +69,6 @@ group :test do
   gem "selenium-webdriver"
 end
 
-gem "claude-on-rails", "~> 0.1.3", group: :development
 
 # Environment configuration
 gem "dotenv-rails", group: [ :development, :test ]
