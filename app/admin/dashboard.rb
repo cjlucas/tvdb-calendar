@@ -70,7 +70,7 @@ ActiveAdmin.register_page "Dashboard" do
     # Sync Status Cards - Second row
     users_needing_sync = User.select(&:needs_sync?).count
     series_needing_sync = Series.select(&:needs_sync?).count
-    
+
     div class: "flex flex-wrap gap-8 mb-10" do
       # Users needing sync
       div class: "flex-1 min-w-0 bg-white dark:bg-gray-800 overflow-hidden shadow-lg rounded-xl border border-gray-200 dark:border-gray-700" do
@@ -116,7 +116,7 @@ ActiveAdmin.register_page "Dashboard" do
         div class: "px-4 py-5 sm:p-6" do
           h3 "Recent Users", class: "text-lg font-medium text-gray-900 dark:text-gray-100 mb-4"
           recent_users = User.order(created_at: :desc).limit(5)
-          
+
           if recent_users.any?
             div class: "space-y-3" do
               recent_users.each do |user|
@@ -145,7 +145,7 @@ ActiveAdmin.register_page "Dashboard" do
         div class: "px-4 py-5 sm:p-6" do
           h3 "Recent Series", class: "text-lg font-medium text-gray-900 dark:text-gray-100 mb-4"
           recent_series = Series.order(created_at: :desc).limit(5)
-          
+
           if recent_series.any?
             div class: "space-y-3" do
               recent_series.each do |series|

@@ -41,7 +41,7 @@ ActiveAdmin.register User do
   end
 
   sidebar "Actions", only: :show do
-    link_to "Force Sync User", sync_admin_user_path(resource), method: :post, 
+    link_to "Force Sync User", sync_admin_user_path(resource), method: :post,
             class: "btn btn-primary",
             data: { confirm: "Force sync for this user? This will bypass sync time limits." }
   end
@@ -63,35 +63,35 @@ ActiveAdmin.register User do
     panel "User Series" do
       # Handle sorting for user series
       sort_order = case params[:order]
-      when 'series.name_asc'
-        'series.name ASC'
-      when 'series.name_desc'
-        'series.name DESC'
-      when 'series.tvdb_id_asc'
-        'series.tvdb_id ASC'
-      when 'series.tvdb_id_desc'
-        'series.tvdb_id DESC'
-      when 'user_series.created_at_asc'
-        'user_series.created_at ASC'
-      when 'user_series.created_at_desc'
-        'user_series.created_at DESC'
+      when "series.name_asc"
+        "series.name ASC"
+      when "series.name_desc"
+        "series.name DESC"
+      when "series.tvdb_id_asc"
+        "series.tvdb_id ASC"
+      when "series.tvdb_id_desc"
+        "series.tvdb_id DESC"
+      when "user_series.created_at_asc"
+        "user_series.created_at ASC"
+      when "user_series.created_at_desc"
+        "user_series.created_at DESC"
       else
-        'user_series.created_at DESC'
+        "user_series.created_at DESC"
       end
-      
+
       user_series_collection = resource.user_series.includes(:series).order(sort_order)
-      paginated_collection(user_series_collection.page(params[:user_series_page]).per(10), param_name: 'user_series_page', download_links: false) do
+      paginated_collection(user_series_collection.page(params[:user_series_page]).per(10), param_name: "user_series_page", download_links: false) do
         table_for(collection, sortable: true, class: "index_table") do
-          column "Series", sortable: 'series.name' do |us|
+          column "Series", sortable: "series.name" do |us|
             link_to us.series.name, admin_series_path(us.series) if us.series
           end
-          column "TVDB ID", sortable: 'series.tvdb_id' do |us|
+          column "TVDB ID", sortable: "series.tvdb_id" do |us|
             us.series&.tvdb_id
           end
           column "Episodes", sortable: false do |us|
             us.series&.episodes&.count || 0
           end
-          column "Added", sortable: 'user_series.created_at' do |us|
+          column "Added", sortable: "user_series.created_at" do |us|
             us.created_at
           end
         end
