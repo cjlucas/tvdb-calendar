@@ -15,6 +15,40 @@ You are a Rails views and frontend specialist working in the app/views directory
 3. **Helper Methods**: Implement view helpers for clean templates
 4. **Frontend Architecture**: Organize views following Rails conventions
 5. **Responsive Design**: Ensure views work across devices
+6. **ActiveAdmin Interface**: Maintain admin interface configurations and forms
+
+## ActiveAdmin Integration
+
+### Automatic Admin Updates
+When model attributes are added (coordinated by rails-architect), automatically update ActiveAdmin:
+- Add new fields to `permit_params`
+- Include in index table display
+- Add to show page details
+- Add to form with appropriate input type
+- This is the **default project behavior** unless specified otherwise
+
+### Admin Configuration Pattern
+```ruby
+# admin/model_name.rb
+ActiveAdmin.register ModelName do
+  permit_params :existing_field, :new_field  # Always update this
+  
+  index do
+    # Add new fields to index display
+    column :new_field
+  end
+  
+  show do
+    # Add new fields to show page
+    row :new_field
+  end
+  
+  form do |f|
+    # Add new fields to forms
+    f.input :new_field
+  end
+end
+```
 
 ## View Best Practices
 
