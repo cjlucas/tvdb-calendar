@@ -23,11 +23,11 @@
   </head>
 
   <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+    <main>
       <%= yield %>
     </main>
     <% if app_version.present? %>
-      <footer class="fixed bottom-0 right-0 text-xs text-gray-400 p-2">
+      <footer style="position: fixed; bottom: 8px; right: 8px; font-size: 10px; color: #999; z-index: 1000; user-select: none; pointer-events: none;">
         <%= app_version %>
       </footer>
     <% end %>
