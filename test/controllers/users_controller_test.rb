@@ -19,7 +19,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
   test "should handle existing user needing sync" do
     pin = "existing_user_#{rand(100000..999999)}"
-    user = User.create!(pin: pin, last_synced_at: 2.hours.ago)
+    user = create(:user, pin: pin, last_synced_at: 2.hours.ago)
 
     post users_path, params: { user: { pin: pin } }, as: :json
 
@@ -32,7 +32,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
   test "should handle existing user not needing sync" do
     pin = "ready_user_#{rand(100000..999999)}"
-    user = User.create!(pin: pin, last_synced_at: 30.minutes.ago)
+    user = create(:user, pin: pin, last_synced_at: 30.minutes.ago)
 
     post users_path, params: { user: { pin: pin } }, as: :json
 
@@ -46,7 +46,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
   test "should handle validation errors" do
     post users_path, params: { user: { pin: "" } }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :unprocessable_content
     response_data = JSON.parse(response.body)
 
     assert_equal "error", response_data["status"]
@@ -56,7 +56,7 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
   test "should handle missing pin parameter" do
     post users_path, params: { user: { pin: nil } }, as: :json
 
-    assert_response :unprocessable_entity
+    assert_response :unprocessable_content
     response_data = JSON.parse(response.body)
 
     assert_equal "error", response_data["status"]

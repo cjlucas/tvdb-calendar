@@ -4,6 +4,9 @@ class UsersController < ApplicationController
 
     @user = User.find_or_initialize_by(pin: user_params[:pin])
 
+    # Ensure UUID is present for new users
+    @user.uuid ||= SecureRandom.uuid_v7 unless @user.persisted?
+
     if @user.persisted?
       Rails.logger.info "UsersController#create: Found existing user #{@user.id}"
       # User already exists
@@ -14,7 +17,7 @@ class UsersController < ApplicationController
         render json: {
           status: "syncing",
           user_pin: @user.pin,
-          calendar_url: user_calendar_url(@user.pin)
+          calendar_url: user_calendar_url(@user.uuid)
         }
       else
         # User is up to date - show calendar URL immediately
@@ -22,7 +25,7 @@ class UsersController < ApplicationController
         render json: {
           status: "ready",
           user_pin: @user.pin,
-          calendar_url: user_calendar_url(@user.pin)
+          calendar_url: user_calendar_url(@user.uuid)
         }
       end
     else
@@ -34,14 +37,14 @@ class UsersController < ApplicationController
         render json: {
           status: "syncing",
           user_pin: @user.pin,
-          calendar_url: user_calendar_url(@user.pin)
+          calendar_url: user_calendar_url(@user.uuid)
         }
       else
         Rails.logger.error "UsersController#create: Failed to save user: #{@user.errors.full_messages}"
         render json: {
           status: "error",
           errors: @user.errors.full_messages
-        }, status: :unprocessable_entity
+        }, status: :unprocessable_content
       end
     end
   rescue InvalidPinError => e

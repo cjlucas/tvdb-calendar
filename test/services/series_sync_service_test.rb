@@ -2,10 +2,7 @@ require "test_helper"
 
 class SeriesSyncServiceTest < ActiveSupport::TestCase
   def setup
-    @series = Series.create!(
-      tvdb_id: rand(100000..999999),
-      name: "Test Series"
-    )
+    @series = create(:series)
     @mock_client = Object.new
     @service = SeriesSyncService.new(@mock_client)
   end

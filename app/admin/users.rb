@@ -1,5 +1,5 @@
 ActiveAdmin.register User do
-  permit_params :pin, :last_synced_at
+  permit_params :pin, :uuid, :last_synced_at
 
   # Custom actions for user sync
   member_action :sync, method: :post do
@@ -20,6 +20,7 @@ ActiveAdmin.register User do
 
   filter :id
   filter :pin_eq, as: :string, label: "PIN"
+  filter :uuid_eq, as: :string, label: "UUID"
   filter :last_synced_at
   filter :created_at
   filter :updated_at
@@ -30,6 +31,9 @@ ActiveAdmin.register User do
     id_column
     column "PIN" do |user|
       "#{user.pin[0..1]}******" if user.pin.present?
+    end
+    column "UUID" do |user|
+      user.uuid
     end
     column :last_synced_at
     column "Series Count" do |user|
@@ -52,6 +56,7 @@ ActiveAdmin.register User do
       row "PIN (Masked)" do |user|
         "#{user.pin[0..1]}******" if user.pin.present?
       end
+      row :uuid
       row :last_synced_at
       row "Series Count" do |user|
         user.user_series.count
@@ -103,6 +108,11 @@ ActiveAdmin.register User do
     f.semantic_errors(*f.object.errors.attribute_names)
     f.inputs do
       f.input :pin, hint: "TheTVDB PIN for this user"
+      if f.object.persisted?
+        f.input :uuid, hint: "UUID for this user (read-only)", input_html: { readonly: true }
+      else
+        f.input :uuid, hint: "UUID will be auto-generated", input_html: { readonly: true, placeholder: "Auto-generated" }
+      end
       f.input :last_synced_at, as: :datetime_picker
     end
     f.actions

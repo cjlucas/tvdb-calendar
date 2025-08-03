@@ -2,19 +2,10 @@ require "test_helper"
 
 class EpisodeTest < ActiveSupport::TestCase
   def setup
-    @user = User.create!(pin: "episode_test_#{rand(100000..999999)}")
-    @series = Series.create!(
-      tvdb_id: rand(100000..999999),
-      name: "Test Series"
-    )
+    @user = create(:user)
+    @series = create(:series)
     @user.user_series.create!(series: @series)
-    @episode = Episode.new(
-      series: @series,
-      title: "Test Episode",
-      season_number: 1,
-      episode_number: 5,
-      air_date: Date.current + 1.day
-    )
+    @episode = build(:episode, series: @series, title: "Test Episode", episode_number: 5)
   end
 
   test "should be valid with valid attributes" do
@@ -96,21 +87,9 @@ class EpisodeTest < ActiveSupport::TestCase
   end
 
   test "upcoming scope should return future episodes" do
-    future_episode = Episode.create!(
-      series: @series,
-      title: "Future Episode",
-      season_number: 1,
-      episode_number: 1,
-      air_date: Date.current + 1.day
-    )
+    future_episode = create(:episode, :upcoming, series: @series, title: "Future Episode", episode_number: 1)
 
-    past_episode = Episode.create!(
-      series: @series,
-      title: "Past Episode",
-      season_number: 1,
-      episode_number: 2,
-      air_date: Date.current - 1.day
-    )
+    past_episode = create(:episode, :aired, series: @series, title: "Past Episode", episode_number: 2)
 
     upcoming_episodes = Episode.upcoming
     assert_includes upcoming_episodes, future_episode
@@ -118,21 +97,9 @@ class EpisodeTest < ActiveSupport::TestCase
   end
 
   test "aired scope should return past episodes" do
-    future_episode = Episode.create!(
-      series: @series,
-      title: "Future Episode",
-      season_number: 1,
-      episode_number: 1,
-      air_date: Date.current + 1.day
-    )
+    future_episode = create(:episode, :upcoming, series: @series, title: "Future Episode", episode_number: 1)
 
-    past_episode = Episode.create!(
-      series: @series,
-      title: "Past Episode",
-      season_number: 1,
-      episode_number: 2,
-      air_date: Date.current - 1.day
-    )
+    past_episode = create(:episode, :aired, series: @series, title: "Past Episode", episode_number: 2)
 
     aired_episodes = Episode.aired
     assert_includes aired_episodes, past_episode
@@ -255,23 +222,9 @@ class EpisodeTest < ActiveSupport::TestCase
     future_time = 1.hour.from_now.utc
     past_time = 1.hour.ago.utc
 
-    future_episode = Episode.create!(
-      series: @series,
-      title: "Future Episode",
-      season_number: 1,
-      episode_number: 10,
-      air_date: Date.current + 1.day,
-      air_datetime_utc: future_time
-    )
+    future_episode = create(:episode, series: @series, title: "Future Episode", episode_number: 10, air_date: Date.current + 1.day, air_datetime_utc: future_time)
 
-    past_episode = Episode.create!(
-      series: @series,
-      title: "Past Episode",
-      season_number: 1,
-      episode_number: 11,
-      air_date: Date.current - 1.day,
-      air_datetime_utc: past_time
-    )
+    past_episode = create(:episode, series: @series, title: "Past Episode", episode_number: 11, air_date: Date.current - 1.day, air_datetime_utc: past_time)
 
     upcoming_episodes = Episode.upcoming_with_time
     assert_includes upcoming_episodes, future_episode
@@ -282,23 +235,9 @@ class EpisodeTest < ActiveSupport::TestCase
     future_time = 1.hour.from_now.utc
     past_time = 1.hour.ago.utc
 
-    future_episode = Episode.create!(
-      series: @series,
-      title: "Future Episode",
-      season_number: 1,
-      episode_number: 12,
-      air_date: Date.current + 1.day,
-      air_datetime_utc: future_time
-    )
+    future_episode = create(:episode, series: @series, title: "Future Episode", episode_number: 12, air_date: Date.current + 1.day, air_datetime_utc: future_time)
 
-    past_episode = Episode.create!(
-      series: @series,
-      title: "Past Episode",
-      season_number: 1,
-      episode_number: 13,
-      air_date: Date.current - 1.day,
-      air_datetime_utc: past_time
-    )
+    past_episode = create(:episode, series: @series, title: "Past Episode", episode_number: 13, air_date: Date.current - 1.day, air_datetime_utc: past_time)
 
     aired_episodes = Episode.aired_with_time
     assert_includes aired_episodes, past_episode

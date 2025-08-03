@@ -2,13 +2,9 @@ require "test_helper"
 
 class SeriesTest < ActiveSupport::TestCase
   def setup
-    @user = User.create!(pin: "series_test_#{rand(100000..999999)}")
+    @user = create(:user)
     @tvdb_id = rand(100000..999999)
-    @series = Series.new(
-      tvdb_id: @tvdb_id,
-      name: "Test Series",
-      imdb_id: "tt1234567"
-    )
+    @series = build(:series, tvdb_id: @tvdb_id)
   end
 
   test "should be valid with valid attributes" do
@@ -29,20 +25,14 @@ class SeriesTest < ActiveSupport::TestCase
 
   test "should require unique tvdb_id globally" do
     @series.save!
-    duplicate_series = Series.new(
-      tvdb_id: @tvdb_id,
-      name: "Another Series"
-    )
+    duplicate_series = build(:series, tvdb_id: @tvdb_id, name: "Another Series")
     assert_not duplicate_series.valid?
     assert_includes duplicate_series.errors[:tvdb_id], "has already been taken"
   end
 
   test "should not allow same tvdb_id for different series" do
     @series.save!
-    other_series = Series.new(
-      tvdb_id: @tvdb_id,
-      name: "Same TVDB ID Different Series"
-    )
+    other_series = build(:series, tvdb_id: @tvdb_id, name: "Same TVDB ID Different Series")
     assert_not other_series.valid?
   end
 
@@ -59,7 +49,7 @@ class SeriesTest < ActiveSupport::TestCase
     @series.save!
     @user.user_series.create!(series: @series)
 
-    other_user = User.create!(pin: "other_#{rand(100000..999999)}")
+    other_user = create(:user)
     other_user.user_series.create!(series: @series)
 
     assert_includes @series.users, @user
