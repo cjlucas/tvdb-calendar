@@ -5,7 +5,7 @@ class CalendarControllerTest < ActionDispatch::IntegrationTest
     @user = create(:user)
     @series = create(:series)
     @user.user_series.create!(series: @series)
-    @episode = create(:episode, series: @series, title: "Test Episode")
+    @episode = create(:episode, series: @series, title: "Test Episode", episode_number: 1)
   end
 
   test "should generate ICS calendar" do
