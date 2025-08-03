@@ -6,7 +6,7 @@ This project uses ClaudeOnRails to create an intelligent swarm of AI agents spec
 
 - **Application**: Tvdbcalendar
 - **Rails Version**: 8.0.2
-- **Ruby Version**: 3.2.2
+- **Ruby Version**: 3.4.5
 - **Type**: Full-stack Rails application
 - **Test Framework**: Minitest
 
@@ -93,6 +93,16 @@ Write code that follows these rules from the start to avoid lint fixes:
 - Descriptive commit messages
 - PR reviews before merging
 - Keep main branch deployable
+
+### Branch Management
+- **CRITICAL**: NEVER make code changes while on the master branch
+- **MANDATORY**: ALWAYS check current branch before making ANY code changes
+- **WORKFLOW**: Before any code modification:
+  1. Check current branch with `git branch --show-current`
+  2. If on master, create and switch to new feature branch immediately
+  3. Use descriptive branch names (e.g., `feature/add-authentication`, `fix/user-sync-bug`)
+- **Why**: Prevents accidental commits to master and maintains clean git history
+- **Exception**: Only documentation updates to CLAUDE.md may be made directly on master
 
 ### Git Commit/Push Policy
 - **CRITICAL**: NEVER commit or push code without explicit developer consent

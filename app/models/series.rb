@@ -6,6 +6,14 @@ class Series < ApplicationRecord
   validates :tvdb_id, presence: true, uniqueness: true
   validates :name, presence: true
 
+  def self.ransackable_attributes(auth_object = nil)
+    [ "created_at", "id", "id_value", "imdb_id", "last_synced_at", "name", "tvdb_id", "updated_at" ]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    [ "episodes", "user_series", "users" ]
+  end
+
   def imdb_url
     return nil unless imdb_id.present?
     "https://www.imdb.com/title/#{imdb_id}/"

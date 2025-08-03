@@ -1,0 +1,36 @@
+<div class="border-b border-gray-200 dark:border-white/10 bg-white dark:bg-gray-950 px-4 py-3 fixed top-0 z-30 w-full backdrop-blur-md">
+  <div class="flex items-center justify-between">
+    <!-- Left side: Logo and Navigation -->
+    <div class="flex items-center space-x-8">
+      <h1 data-test-site-title class="text-lg font-semibold">
+        <%= link_to "Tvdbcalendar", admin_root_path, class: "no-underline text-gray-900 dark:text-white" %>
+      </h1>
+      
+      <!-- Horizontal navigation menu -->
+      <nav class="flex space-x-6">
+        <%= link_to "Dashboard", admin_root_path, 
+            class: "px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 #{current_page?(admin_root_path) ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800/50'} no-underline" %>
+        
+        <%= link_to "Users", admin_users_path, 
+            class: "px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 #{current_page?(admin_users_path) ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800/50'} no-underline" %>
+        
+        <%= link_to "Series", admin_series_index_path, 
+            class: "px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 #{current_page?(admin_series_index_path) ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800/50'} no-underline" %>
+        
+        <%= link_to "Episodes", admin_episodes_path, 
+            class: "px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 #{current_page?(admin_episodes_path) ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800/50'} no-underline" %>
+        
+        <%= link_to "Comments", admin_comments_path, 
+            class: "px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 #{current_page?(admin_comments_path) ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800/50'} no-underline" %>
+      </nav>
+    </div>
+
+    <!-- Right side: Utilities -->
+    <div class="flex items-center space-x-2">
+      <button type="button" class="dark-mode-toggle flex items-center w-9 h-9 justify-center text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400 focus:outline-none text-sm" aria-label="Toggle dark mode">
+        <svg class="hidden dark:block w-5 h-5 rtl:-scale-x-100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.509 5.75c0-1.493.394-2.96 1.144-4.25h-.081a8.5 8.5 0 1 0 7.356 12.746A8.5 8.5 0 0 1 8.509 5.75Z"/></svg>
+        <svg class="dark:hidden w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 3V1m0 18v-2M5.05 5.05 3.636 3.636m12.728 12.728L14.95 14.95M3 10H1m18 0h-2M5.05 14.95l-1.414 1.414M16.364 3.636 14.95 5.05M14 10a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
