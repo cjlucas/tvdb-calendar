@@ -5,6 +5,14 @@ class User < ApplicationRecord
   has_many :series, through: :user_series
   has_many :episodes, through: :series
 
+  def self.ransackable_attributes(auth_object = nil)
+    [ "created_at", "id", "id_value", "last_synced_at", "pin", "updated_at" ]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    [ "episodes", "series", "user_series" ]
+  end
+
   def needs_sync?
     last_synced_at.nil? || last_synced_at < 1.hour.ago
   end

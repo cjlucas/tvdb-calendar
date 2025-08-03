@@ -8,6 +8,16 @@ class Episode < ApplicationRecord
   validates :air_date, presence: true
   validates :runtime_minutes, numericality: { greater_than: 0 }, allow_nil: true
 
+  def self.ransackable_attributes(auth_object = nil)
+    [ "air_date", "air_datetime_utc", "air_time", "created_at", "episode_number", "id", "id_value",
+     "is_season_finale", "original_timezone", "runtime_minutes", "season_number", "series_id",
+     "title", "updated_at" ]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    [ "series", "users" ]
+  end
+
   scope :upcoming, -> { where("air_date >= ?", Date.current) }
   scope :aired, -> { where("air_date < ?", Date.current) }
   scope :upcoming_with_time, -> { where("air_datetime_utc >= ?", Time.current.utc) }
