@@ -2,21 +2,10 @@ require "test_helper"
 
 class IcsGeneratorTest < ActiveSupport::TestCase
   def setup
-    @user = User.create!(pin: "ics_test_#{rand(100000..999999)}", uuid: SecureRandom.uuid_v7)
-    @series = Series.create!(
-      tvdb_id: rand(100000..999999),
-      name: "Test Series",
-      imdb_id: "tt1234567"
-    )
+    @user = create(:user)
+    @series = create(:series)
     @user.user_series.create!(series: @series)
-    @episode = Episode.create!(
-      series: @series,
-      title: "Test Episode",
-      season_number: 1,
-      episode_number: 5,
-      air_date: Date.current + 1.day,
-      is_season_finale: false
-    )
+    @episode = create(:episode, series: @series, title: "Test Episode", episode_number: 5)
     @generator = IcsGenerator.new(@user)
   end
 

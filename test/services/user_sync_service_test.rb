@@ -24,11 +24,7 @@ class UserSyncServiceTest < ActiveSupport::TestCase
 
   test "should sync recently synced series when force is true" do
     # Create a series that was recently synced (should normally be skipped)
-    series = Series.create!(
-      tvdb_id: 12345,
-      name: "Test Series",
-      last_synced_at: 1.hour.ago # Recently synced, should normally skip
-    )
+    series = create(:series, tvdb_id: 12345, name: "Test Series", last_synced_at: 1.hour.ago)
 
     # Create user association
     @user.user_series.create!(series: series)
@@ -131,11 +127,7 @@ class UserSyncServiceTest < ActiveSupport::TestCase
 
   test "should handle API errors gracefully when force is used" do
     # Create a series for testing
-    series = Series.create!(
-      tvdb_id: 12346,
-      name: "Error Test Series",
-      last_synced_at: 1.hour.ago
-    )
+    series = create(:series, tvdb_id: 12346, name: "Error Test Series", last_synced_at: 1.hour.ago)
     @user.user_series.create!(series: series)
 
     # Mock TvdbClient to raise error

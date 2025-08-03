@@ -44,7 +44,7 @@ class UsersController < ApplicationController
         render json: {
           status: "error",
           errors: @user.errors.full_messages
-        }, status: :unprocessable_entity
+        }, status: :unprocessable_content
       end
     end
   rescue InvalidPinError => e

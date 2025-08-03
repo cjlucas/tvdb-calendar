@@ -2,20 +2,10 @@ require "test_helper"
 
 class CalendarControllerTest < ActionDispatch::IntegrationTest
   def setup
-    @user = User.create!(pin: "calendar_test_#{rand(100000..999999)}", uuid: SecureRandom.uuid_v7)
-    @series = Series.create!(
-      tvdb_id: rand(100000..999999),
-      name: "Test Series",
-      imdb_id: "tt1234567"
-    )
+    @user = create(:user)
+    @series = create(:series)
     @user.user_series.create!(series: @series)
-    @episode = Episode.create!(
-      series: @series,
-      title: "Test Episode",
-      season_number: 1,
-      episode_number: 1,
-      air_date: Date.current + 1.day
-    )
+    @episode = create(:episode, series: @series, title: "Test Episode")
   end
 
   test "should generate ICS calendar" do
