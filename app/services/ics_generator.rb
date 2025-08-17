@@ -11,13 +11,13 @@ class IcsGenerator
       "CALSCALE:GREGORIAN",
       "METHOD:PUBLISH",
       "X-WR-CALNAME:TV Shows",
-      "X-WR-CALDESC:Upcoming episodes for your favorite TV shows from TheTVDB"
+      "X-WR-CALDESC:All episodes for your favorite TV shows from TheTVDB"
     ]
 
     # Add timezone definition for New York timezone
     calendar.concat(new_york_timezone_definition)
 
-    episodes = @user.episodes.upcoming.includes(:series).order(:air_date)
+    episodes = @user.episodes.includes(:series).order(:air_date)
 
     episodes.each do |episode|
       calendar.concat(build_event(episode))

@@ -18,8 +18,10 @@ This project uses Claude Code's native subagents to create an intelligent team o
    - Zero tolerance policy - fix every single violation
    - Use `rubocop -a` for safe auto-fixes, `rubocop -A` for all fixes
 
-2. **✅ RUN TESTS**: Execute `rails test` and verify ALL tests pass
-   - 0 failures, 0 errors required
+2. **✅ RUN TESTS**: Execute BOTH test suites during RSpec conversion
+   - `rails test` - Minitest suite (temporary during conversion)
+   - `bundle exec rspec` - RSpec suite (new tests)
+   - 0 failures, 0 errors required in BOTH suites
    - If tests fail, fix the issues before committing
 
 3. **✅ STAGE FILES**: Check `git status` and stage appropriate files
