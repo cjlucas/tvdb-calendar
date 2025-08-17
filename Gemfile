@@ -56,6 +56,9 @@ group :development, :test do
 
   # Factory Bot for test data creation
   gem "factory_bot_rails"
+
+  # RSpec for testing
+  gem "rspec-rails", "~> 7.0"
 end
 
 group :development do
@@ -67,6 +70,9 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
+
+  # Additional RSpec matchers for Rails
+  gem "shoulda-matchers"
 end
 
 
