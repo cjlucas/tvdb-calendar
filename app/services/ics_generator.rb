@@ -77,18 +77,60 @@ class IcsGenerator
       event << "DTEND;VALUE=DATE:#{date_end}"
     end
 
-    event << "SUMMARY:#{escape_ics_text(episode.full_title)}"
+    event << "SUMMARY:#{escape_ics_text(build_event_title(episode))}"
     event << "LOCATION:#{escape_ics_text(episode.location_text)}"
 
-    # Add description with IMDB link if available
+    # Add enhanced description with episode overview
+    description = build_event_description(episode)
+    event << "DESCRIPTION:#{escape_ics_text(description)}"
+
+    # Add URL if IMDB link is available
     if episode.series.imdb_url
-      description = "Watch on IMDB: #{episode.series.imdb_url}"
-      event << "DESCRIPTION:#{escape_ics_text(description)}"
       event << "URL:#{episode.series.imdb_url}"
     end
 
     event << "END:VEVENT"
     event
+  end
+
+  def build_event_title(episode)
+    title = episode.series.name
+    title += ": #{episode.title}" if episode.title.present?
+    title += " (S#{episode.season_number.to_s.rjust(2, '0')}E#{episode.episode_number.to_s.rjust(2, '0')})"
+    title += " - Season Finale" if episode.is_season_finale?
+    title
+  end
+
+  def build_event_description(episode)
+    description_parts = []
+
+    # Add episode overview if available
+    if episode.overview.present?
+      description_parts << episode.overview
+      description_parts << "" # Empty line for spacing
+    end
+
+    # Add runtime information if available
+    if episode.runtime_minutes.present?
+      description_parts << "Runtime: #{episode.runtime_minutes} minutes"
+    end
+
+    # Add original timezone if available
+    if episode.original_timezone.present?
+      air_time = episode.air_time_in_timezone(episode.original_timezone)
+      if air_time.present?
+        description_parts << "Original Airtime: #{air_time.strftime('%l:%M %p %Z')}"
+      end
+    end
+
+    # Add IMDB link if available
+    if episode.series.imdb_url.present?
+      description_parts << "" # Empty line for spacing
+      description_parts << "Show Information:"
+      description_parts << "• IMDB: #{episode.series.imdb_url}"
+    end
+
+    description_parts.join("\n")
   end
 
   def escape_ics_text(text)
