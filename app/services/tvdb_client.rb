@@ -97,6 +97,20 @@ class TvdbClient
     all_episodes
   end
 
+  def get_episode_details(episode_id)
+    raise "Not authenticated" unless @token
+
+    response = self.class.get("/episodes/#{episode_id}/extended",
+      headers: auth_headers
+    )
+
+    if response.success?
+      response.parsed_response["data"]
+    else
+      raise "Failed to fetch episode details: #{response.parsed_response['message']}"
+    end
+  end
+
   private
 
   def auth_headers

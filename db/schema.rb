@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_03_002706) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_18_135229) do
   create_table "active_admin_comments", force: :cascade do |t|
     t.string "namespace"
     t.text "body"
@@ -38,6 +38,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_03_002706) do
     t.integer "runtime_minutes"
     t.string "original_timezone"
     t.datetime "air_datetime_utc"
+    t.text "overview"
     t.index ["air_date"], name: "index_episodes_on_air_date"
     t.index ["air_datetime_utc"], name: "index_episodes_on_air_datetime_utc"
     t.index ["series_id", "season_number", "episode_number"], name: "idx_on_series_id_season_number_episode_number_ac8d2e3ce3", unique: true

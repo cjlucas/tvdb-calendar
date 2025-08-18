@@ -296,4 +296,43 @@ RSpec.describe Episode, type: :model do
       end
     end
   end
+
+  describe "overview attribute" do
+    it "allows nil overview" do
+      episode.overview = nil
+      expect(episode).to be_valid
+      expect(episode.overview).to be_nil
+    end
+
+    it "allows empty overview" do
+      episode.overview = ""
+      expect(episode).to be_valid
+      expect(episode.overview).to eq("")
+    end
+
+    it "stores overview text correctly" do
+      overview_text = "This is a detailed episode overview with plot information and character development."
+      episode.overview = overview_text
+      episode.save!
+      episode.reload
+      expect(episode.overview).to eq(overview_text)
+    end
+
+    it "preserves special characters in overview" do
+      overview_with_special_chars = "Episode with \"quotes\", commas, semicolons; and\nnewlines."
+      episode.overview = overview_with_special_chars
+      episode.save!
+      episode.reload
+      expect(episode.overview).to eq(overview_with_special_chars)
+    end
+
+    it "handles long overview text" do
+      long_overview = "This is a very long episode overview that contains multiple sentences and detailed plot information. " * 10
+      episode.overview = long_overview
+      episode.save!
+      episode.reload
+      expect(episode.overview).to eq(long_overview)
+      expect(episode.overview.length).to be > 500
+    end
+  end
 end
