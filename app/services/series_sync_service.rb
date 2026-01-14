@@ -68,13 +68,17 @@ class SeriesSyncService
       # Parse air time and timezone information if available
       air_datetime_utc = parse_air_datetime(episode_data, series_details)
 
+      # Fetch detailed episode information to get overview
+      episode_overview = fetch_episode_overview(episode_data["id"])
+
       episode.assign_attributes(
         title: episode_data["name"] || "Episode #{episode_data['number']}",
         air_date: Date.parse(episode_data["aired"]),
         is_season_finale: episode_data["finaleType"] == "season" || episode_data["finaleType"] == "series",
         air_datetime_utc: air_datetime_utc,
         runtime_minutes: extract_runtime(episode_data, series_details),
-        original_timezone: extract_timezone(episode_data, series_details)
+        original_timezone: extract_timezone(episode_data, series_details),
+        overview: episode_overview
       )
 
       episode.save!
@@ -82,6 +86,18 @@ class SeriesSyncService
   end
 
   private
+
+  def fetch_episode_overview(episode_id)
+    return nil unless episode_id.present?
+
+    begin
+      episode_details = @client.get_episode_details(episode_id)
+      episode_details["overview"]
+    rescue => e
+      Rails.logger.warn "SeriesSyncService: Failed to fetch episode overview for episode #{episode_id}: #{e.message}"
+      nil
+    end
+  end
 
   def parse_air_datetime(episode_data, series_details)
     # Try to extract air time from various possible fields
