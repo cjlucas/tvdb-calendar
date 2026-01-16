@@ -82,7 +82,7 @@ gem "dotenv-rails", group: [ :development, :test ]
 # HTTP client for TheTVDB API
 gem "httparty"
 
-gem "pry", "~> 0.15.2", group: :development
+gem "pry", "~> 0.16.0", group: :development
 
 # ActiveAdmin for admin interface
 gem "activeadmin"
