@@ -5,6 +5,7 @@ FactoryBot.define do
     season_number { 1 }
     air_date { Date.current + 1.day }
     is_season_finale { false }
+    overview { nil }
 
     # Sequence for unique episode numbers
     sequence :episode_number do |n|
@@ -34,6 +35,18 @@ FactoryBot.define do
 
     trait :with_runtime do |minutes|
       runtime_minutes { minutes }
+    end
+
+    trait :with_overview do
+      overview { "This is a detailed episode overview that describes the plot and characters." }
+    end
+
+    trait :with_long_overview do
+      overview do
+        "This is a very long episode overview that contains multiple sentences and detailed plot information. " \
+        "It describes the characters, their motivations, and the events that unfold during the episode. " \
+        "The overview might include information about character development, plot twists, and important story elements."
+      end
     end
   end
 end

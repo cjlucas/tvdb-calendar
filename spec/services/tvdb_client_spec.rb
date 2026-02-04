@@ -29,6 +29,10 @@ RSpec.describe TvdbClient do
     it "responds to get_series_episodes" do
       expect(client).to respond_to(:get_series_episodes)
     end
+
+    it "responds to get_episode_details" do
+      expect(client).to respond_to(:get_episode_details)
+    end
   end
 
   describe "authentication requirements" do
@@ -49,6 +53,10 @@ RSpec.describe TvdbClient do
         # This test verifies that get_series_episodes no longer requires authentication
         # The actual API call will fail in tests, but it shouldn't fail due to missing auth
         expect(client).to respond_to(:get_series_episodes)
+      end
+
+      it "requires authentication for episode details" do
+        expect { client.get_episode_details(123456) }.to raise_error(RuntimeError, "Not authenticated")
       end
     end
   end
@@ -81,6 +89,124 @@ RSpec.describe TvdbClient do
 
       it "does not match unrelated invalid patterns" do
         expect("invalid request").not_to match(/invalid.*pin|pin.*invalid/i)
+      end
+    end
+  end
+
+  describe "#get_episode_details" do
+    before do
+      # Set the token instance variable directly
+      client.instance_variable_set(:@token, "fake_token")
+    end
+
+    context "with successful response" do
+      let(:episode_details_response) do
+        {
+          "data" => {
+            "id" => 123456,
+            "name" => "Test Episode",
+            "overview" => "This is a detailed overview of the test episode with multiple characters and plot details.",
+            "runtime" => 45,
+            "aired" => "2023-01-01",
+            "seasonNumber" => 1,
+            "number" => 5
+          }
+        }
+      end
+
+      before do
+        allow(TvdbClient).to receive(:get).and_return(
+          double(success?: true, parsed_response: episode_details_response)
+        )
+      end
+
+      it "returns episode details data" do
+        result = client.get_episode_details(123456)
+
+        expect(result).to eq(episode_details_response["data"])
+        expect(result["overview"]).to eq("This is a detailed overview of the test episode with multiple characters and plot details.")
+        expect(result["runtime"]).to eq(45)
+        expect(result["name"]).to eq("Test Episode")
+      end
+
+      it "calls correct API endpoint" do
+        client.get_episode_details(123456)
+
+        expect(TvdbClient).to have_received(:get).with(
+          "/episodes/123456/extended",
+          headers: {
+            "Authorization" => "Bearer fake_token",
+            "Content-Type" => "application/json"
+          }
+        )
+      end
+    end
+
+    context "with API error response" do
+      before do
+        allow(TvdbClient).to receive(:get).and_return(
+          double(success?: false, parsed_response: { "message" => "Episode not found" })
+        )
+      end
+
+      it "raises error for failed API call" do
+        expect { client.get_episode_details(999999) }.to raise_error(
+          RuntimeError, "Failed to fetch episode details: Episode not found"
+        )
+      end
+    end
+
+    context "with episode that has no overview" do
+      let(:episode_details_response) do
+        {
+          "data" => {
+            "id" => 123456,
+            "name" => "Test Episode",
+            "overview" => nil,
+            "runtime" => 45,
+            "aired" => "2023-01-01"
+          }
+        }
+      end
+
+      before do
+        allow(TvdbClient).to receive(:get).and_return(
+          double(success?: true, parsed_response: episode_details_response)
+        )
+      end
+
+      it "returns data with nil overview" do
+        result = client.get_episode_details(123456)
+
+        expect(result["overview"]).to be_nil
+        expect(result["name"]).to eq("Test Episode")
+      end
+    end
+
+    context "with episode that has empty overview" do
+      let(:episode_details_response) do
+        {
+          "data" => {
+            "id" => 123456,
+            "name" => "Test Episode",
+            "overview" => "",
+            "runtime" => 45,
+            "aired" => "2023-01-01"
+          }
+        }
+      end
+
+      before do
+        allow(TvdbClient).to receive(:get).and_return(
+          double(success?: true, parsed_response: episode_details_response)
+        )
+      end
+
+      it "returns data with empty overview" do
+        result = client.get_episode_details(123456)
+
+        expect(result["overview"]).to eq("")
+        expect(result["name"]).to eq("Test Episode")
       end
     end
   end
